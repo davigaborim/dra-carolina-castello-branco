@@ -6,6 +6,10 @@ Campo Grande/MS. Substitui o site em WordPress + Elementor que estava no ar.
 Estático puro: HTML + CSS + JS, **sem build, sem framework, sem banco**. Para
 ver localmente, abra o `index.html` no navegador — não precisa de servidor.
 
+**Prévia no ar:** <https://davigaborim.github.io/dra-carolina-castello-branco/>
+— é a versão de aprovação, servida pelo GitHub Pages a partir da branch `main`.
+O endereço final continua sendo `dracarolinacastellobranco.com.br`.
+
 **Site inteiro: 326 KB.** Para comparação, só as imagens do site da Clínica
 Castello Branco somam 6,6 MB.
 
@@ -281,6 +285,10 @@ ativo, então pode haver conteúdo que não aparecia na home).
   funda/`, e caminho relativo quebraria o CSS lá. Isso vale para site publicado
   **na raiz do domínio** — em subpasta, esses caminhos precisam do prefixo.
   Abrir o `404.html` direto do disco mostra a página sem estilo: é esperado.
+  No `<head>` dele há um trecho de 8 linhas que reaponta CSS, ícone e script
+  **só quando o domínio termina em `.github.io`** — é o que faz o 404 aparecer
+  certo na prévia do Pages, onde o site vive em `/<repositório>/`. Em produção
+  a condição é falsa e nada disso roda; pode apagar sem quebrar nada.
 
 ---
 
