@@ -1,0 +1,60 @@
+# ==========================================================================
+# Dra. Carolina Castello Branco — regras de servidor (Apache / Hostinger)
+#
+# ATENÇÃO AO SUBIR POR FTP: este arquivo começa com ponto, e a maioria dos
+# programas de FTP esconde arquivos assim por padrão. Se ele não subir, o
+# site perde HTTPS forçado, cache e cabeçalhos de segurança — e o 404 some.
+# Ligue "mostrar arquivos ocultos" antes de enviar.
+# ==========================================================================
+
+ErrorDocument 404 /404.html
+
+# ---- HTTPS e www -> raiz -------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# ---- Cabeçalhos de segurança --------------------------------------------
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), interest-cohort=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+  # o HTML nunca fica em cache: é o único arquivo que muda sem trocar de nome
+  <FilesMatch "\.(html)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# ---- Cache dos estáticos -------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css                  "access plus 1 year"
+  ExpiresByType application/javascript    "access plus 1 year"
+  ExpiresByType image/webp                "access plus 1 year"
+  ExpiresByType image/png                 "access plus 1 year"
+  ExpiresByType image/jpeg                "access plus 1 year"
+  ExpiresByType image/svg+xml             "access plus 1 year"
+  ExpiresByType text/html                 "access plus 0 seconds"
+</IfModule>
+
+# ---- Compressão ----------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json image/svg+xml
+</IfModule>
+
+# ---- Tipos ---------------------------------------------------------------
+<IfModule mod_mime.c>
+  AddType image/webp .webp
+  AddType image/svg+xml .svg
+</IfModule>

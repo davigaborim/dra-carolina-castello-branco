@@ -1,0 +1,11 @@
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
+
+# Pasta separada para subir na Hostinger (é cópia do que já está versionado)
+site-hostinger/

@@ -1,0 +1,778 @@
+/* ==========================================================================
+   DRA. CAROLINA CASTELLO BRANCO — Ginecologia e Obstetrícia
+
+   Paleta: vinho profundo, rosa e ouro, com a prata reservada aos fios finos.
+   O rosa e o ouro são os MESMOS tokens do site da Clínica Castello Branco
+   (--rosa #C77E92, --ouro #B08D57): ela atende lá, e os dois sites precisam
+   parecer da mesma família sem serem o mesmo site. O vinho e a prata são o
+   que este tem de próprio.
+
+   Sumário
+     0. Tokens          8. Especialidades
+     1. Base            9. A consulta (pilares, horários, guias)
+     2. Cabeçalho      10. A clínica
+     3. Peças          11. Contato
+     4. Revelação      12. Rodapé
+     5. Abertura       13. WhatsApp flutuante
+     6. Sobre          14. Seda (canvas WebGL)
+     7. As fases       15. Movimento reduzido
+   ========================================================================== */
+
+/* ==========================================================================
+   0. TOKENS
+   ========================================================================== */
+
+:root{
+  /* tinta */
+  --vinho:#2A1420;
+  --vinho-alto:#3B1D2B;
+  --vinho-fundo:#1B0C14;
+  --texto:#4A3A40;
+  --texto-forte:#33262B;
+  --texto-fraco:#74656C;
+
+  /* rosa */
+  --rosa:#C77E92;
+  --rosa-claro:#E7BCC6;
+  --rosa-fundo:#9E4F66;        /* texto pequeno no claro — passa 4.5:1 */
+  --blush:#FBF1F0;
+  --blush-alto:#F4DEE0;
+
+  /* metais */
+  --ouro:#B08D57;
+  --ouro-claro:#DCC08A;
+  /* Ouro escurecido para texto pequeno. NÃO use --ouro cru em rótulo: o ouro
+     claro não tem contraste. Este valor é o mais claro que ainda passa 4.5:1
+     sobre o mais escuro dos três papéis — o blush (4.79:1). Sobre creme dá
+     5.03:1 e sobre pérola 5.20:1. Se clarear, confira o blush primeiro. */
+  --ouro-fundo:#856637;
+  --prata:#C8CAD0;
+  --prata-fosca:#9AA0A8;
+
+  /* papel */
+  --perola:#FFFCF9;
+  --creme:#FDF8F3;
+  --creme-fundo:#F8F0E6;
+
+  /* tipo */
+  --display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --corpo:"Inter",-apple-system,"Segoe UI",system-ui,sans-serif;
+
+  /* medidas */
+  --wrap:1180px;
+  --gut:clamp(20px,5vw,44px);
+  --raio:18px;
+  --raio-sm:10px;
+  --s-secao:clamp(84px,11vw,148px);
+  --topo-h:76px;
+
+  /* arco: um só valor, usado no portal da abertura e no retrato do Sobre */
+  --arco:50% 50% 0 0 / 22% 22% 0 0;
+
+  --sombra:0 18px 50px -22px rgba(42,20,32,.20);
+  --sombra-alta:0 34px 80px -30px rgba(42,20,32,.30);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+
+@media (max-width:720px){ :root{ --topo-h:64px; } }
+
+/* ==========================================================================
+   1. BASE
+   ========================================================================== */
+
+*,*::before,*::after{ box-sizing:border-box; }
+[hidden]{ display:none !important; }   /* segura flex/grid, que `hidden` sozinho não segura */
+
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:calc(var(--topo-h) + 16px);
+  -webkit-text-size-adjust:100%;
+}
+
+body{
+  margin:0;
+  font-family:var(--corpo);
+  font-size:clamp(15.5px,.5vw + 14.2px,17px);
+  font-weight:300;
+  line-height:1.68;
+  color:var(--texto);
+  background:var(--creme);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+img{ max-width:100%; height:auto; display:block; }
+a{ color:inherit; }
+ul,ol{ margin:0; padding:0; list-style:none; }
+p{ margin:0; text-wrap:pretty; }
+
+h1,h2,h3,h4{
+  font-family:var(--display);
+  font-weight:500;
+  line-height:1.06;
+  letter-spacing:0;
+  margin:0;
+  color:var(--texto-forte);
+  text-wrap:balance;
+}
+
+em{ font-style:italic; }
+strong{ font-weight:500; color:var(--texto-forte); }
+
+::selection{ background:var(--blush-alto); color:var(--texto-forte); }
+
+:focus-visible{
+  outline:2px solid var(--rosa-fundo);
+  outline-offset:3px;
+  border-radius:4px;
+}
+
+.wrap{ width:100%; max-width:var(--wrap); margin-inline:auto; padding-inline:var(--gut); }
+
+.secao{ padding-block:var(--s-secao); position:relative; }
+.secao--blush{ background:var(--blush); }
+
+.pular{
+  position:absolute; left:-9999px; top:10px; z-index:200;
+  background:var(--vinho); color:var(--perola);
+  padding:12px 22px; border-radius:999px; font-size:.9rem; text-decoration:none;
+}
+.pular:focus{ left:12px; }
+
+/* fio de progresso de leitura */
+.progresso{ position:fixed; inset:0 0 auto 0; height:2px; z-index:90; pointer-events:none; }
+.progresso i{
+  display:block; height:100%; width:100%; transform:scaleX(0); transform-origin:0 50%;
+  background:linear-gradient(90deg,var(--ouro-claro),var(--rosa),var(--prata));
+}
+
+/* ==========================================================================
+   2. CABEÇALHO
+   ========================================================================== */
+
+.topo{
+  position:fixed; inset:0 0 auto 0; z-index:80;
+  background:transparent;
+  transition:background .4s var(--ease),box-shadow .4s var(--ease);
+}
+.topo.is-preso{
+  background:rgba(253,248,243,.90);
+  backdrop-filter:blur(14px) saturate(160%);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
+  box-shadow:0 1px 0 rgba(176,141,87,.20);
+}
+
+.topo__in{ display:flex; align-items:center; gap:clamp(14px,3vw,34px); height:var(--topo-h); }
+
+.marca{ display:inline-flex; align-items:center; gap:11px; text-decoration:none; flex:0 0 auto; }
+.marca__mono{ width:auto; height:34px; opacity:.9; transition:transform .5s var(--ease); }
+.marca:hover .marca__mono{ transform:translateY(-2px) rotate(-3deg); }
+.marca__nome{
+  font-family:var(--display); font-size:1.02rem; line-height:1.12;
+  letter-spacing:.02em; color:var(--perola);
+}
+.marca__nome em{ color:var(--rosa-claro); }
+.topo.is-preso .marca__nome{ color:var(--texto-forte); }
+.topo.is-preso .marca__nome em{ color:var(--rosa-fundo); }
+
+.nav{ margin-left:auto; display:flex; gap:clamp(12px,2vw,26px); }
+.nav a{
+  position:relative; text-decoration:none; font-size:.83rem; font-weight:400;
+  letter-spacing:.03em; color:rgba(255,252,249,.80); padding-block:6px;
+  transition:color .3s ease;
+}
+.nav a::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:1px;
+  background:currentColor; transform:scaleX(0); transform-origin:0 50%;
+  transition:transform .4s var(--ease);
+}
+.nav a:hover,.nav a.is-atual{ color:var(--rosa-claro); }
+.nav a:hover::after,.nav a.is-atual::after{ transform:scaleX(1); }
+.topo.is-preso .nav a{ color:var(--texto); }
+.topo.is-preso .nav a:hover,.topo.is-preso .nav a.is-atual{ color:var(--rosa-fundo); }
+
+.topo__cta{ flex:0 0 auto; }
+
+.hamburguer{
+  display:none; width:42px; height:42px; margin-left:auto; padding:0;
+  background:none; border:0; cursor:pointer;
+  flex-direction:column; justify-content:center; align-items:center; gap:5px;
+}
+.hamburguer span{
+  display:block; width:22px; height:1px; background:var(--perola);
+  transition:transform .35s var(--ease),opacity .25s ease,background .3s ease;
+}
+.topo.is-preso .hamburguer span{ background:var(--texto-forte); }
+.hamburguer[aria-expanded="true"] span:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+.hamburguer[aria-expanded="true"] span:nth-child(2){ opacity:0; }
+.hamburguer[aria-expanded="true"] span:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
+
+@media (max-width:940px){
+  .hamburguer{ display:flex; }
+  /* `.topo .topo__cta` e não `.topo__cta`: o `.btn{display:inline-flex}` da
+     seção 3 vem depois no arquivo e, com a mesma especificidade, ganharia —
+     media query não conta como especificidade. */
+  .topo .topo__cta{ display:none; }
+  .nav{
+    position:fixed; inset:var(--topo-h) 0 auto 0;
+    flex-direction:column; gap:0; margin:0;
+    background:rgba(42,20,32,.97);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    padding:14px var(--gut) 26px;
+    transform:translateY(-12px); opacity:0; pointer-events:none;
+    transition:opacity .3s ease,transform .35s var(--ease);
+    border-bottom:1px solid rgba(220,192,138,.22);
+  }
+  .nav.is-aberto{ transform:none; opacity:1; pointer-events:auto; }
+  .nav a,.topo.is-preso .nav a{
+    color:var(--perola); font-size:1rem; padding:13px 0;
+    border-bottom:1px solid rgba(255,252,249,.09);
+  }
+  .nav a::after{ display:none; }
+}
+
+/* ==========================================================================
+   3. PEÇAS (rótulos, títulos, botões, fios)
+   ========================================================================== */
+
+.rotulo{
+  font-size:.68rem; font-weight:500; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--ouro-fundo); margin-bottom:18px;
+}
+.rotulo--claro{ color:var(--ouro-claro); }
+
+.titulo{ font-size:clamp(2.1rem,4.6vw,3.5rem); }
+.titulo em{ color:var(--rosa-fundo); font-weight:300; }
+
+.cab{ margin-bottom:clamp(44px,6vw,76px); }
+.cab--centro{ text-align:center; max-width:660px; margin-inline:auto; }
+.cab__texto{ margin-top:20px; color:var(--texto-fraco); }
+
+/* fio ornamental: dois traços e um losango */
+.fio-orn{ display:flex; align-items:center; justify-content:center; gap:12px; margin:26px 0; }
+.fio-orn::before,.fio-orn::after{
+  content:""; height:1px; width:clamp(38px,9vw,84px);
+  background:linear-gradient(90deg,transparent,var(--ouro));
+}
+.fio-orn::after{ background:linear-gradient(90deg,var(--ouro),transparent); }
+.fio-orn i{ width:5px; height:5px; background:var(--ouro); transform:rotate(45deg); }
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:9px;
+  font-family:var(--corpo); font-size:.86rem; font-weight:400; letter-spacing:.04em;
+  padding:13px 26px; border-radius:999px; text-decoration:none; border:1px solid transparent;
+  cursor:pointer; transition:transform .35s var(--ease),background .3s ease,color .3s ease,border-color .3s ease,box-shadow .35s var(--ease);
+}
+.btn--lg{ padding:16px 34px; font-size:.92rem; }
+.btn--sm{ padding:10px 20px; font-size:.79rem; }
+.btn:hover{ transform:translateY(-2px); }
+.btn__seta{ width:17px; height:17px; transition:transform .35s var(--ease); }
+.btn:hover .btn__seta{ transform:translateX(4px); }
+.btn__zap{ width:19px; height:19px; }
+
+.btn--solido{ background:var(--rosa-fundo); color:var(--perola); box-shadow:0 10px 26px -14px rgba(158,79,102,.9); }
+.btn--solido:hover{ background:#8B4459; box-shadow:0 16px 34px -16px rgba(158,79,102,1); }
+
+.btn--vazado{ border-color:rgba(220,192,138,.5); color:var(--perola); }
+.btn--vazado:hover{ border-color:var(--ouro-claro); background:rgba(220,192,138,.10); }
+
+.btn--fantasma{ border-color:rgba(255,252,249,.28); color:var(--perola); }
+.btn--fantasma:hover{ border-color:rgba(255,252,249,.6); background:rgba(255,252,249,.07); }
+
+.btn--zap{ background:var(--perola); color:var(--vinho); }
+.btn--zap:hover{ background:#fff; }
+
+.link{
+  display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+  font-size:.83rem; letter-spacing:.04em; color:var(--rosa-fundo);
+  border-bottom:1px solid rgba(158,79,102,.28); padding-bottom:3px;
+  transition:border-color .3s ease,gap .3s var(--ease);
+}
+.link svg{ width:15px; height:15px; }
+.link:hover{ border-color:var(--rosa-fundo); gap:11px; }
+
+/* ==========================================================================
+   4. REVELAÇÃO
+   `.is-vista` entra; `.is-limpo` (300ms depois, pelo main.js) tira o filter —
+   filter deixa uma camada de composição ligada pra sempre e amolece o texto.
+   ========================================================================== */
+
+.reveal{
+  opacity:0; transform:translateY(26px); filter:blur(6px);
+  transition:opacity .9s var(--ease),transform .9s var(--ease),filter .9s var(--ease);
+  transition-delay:calc(var(--d,0) * 110ms);
+}
+.reveal.is-vista{ opacity:1; transform:none; filter:blur(0); }
+.reveal.is-limpo{ filter:none; }
+
+/* ==========================================================================
+   5. ABERTURA — o portal
+   Sem hero partido: um arco centralizado com a seda correndo atrás.
+   O arco é border-radius no próprio bloco, então escala sozinho; o padding
+   de topo é o que impede o texto de encostar na curva.
+   ========================================================================== */
+
+.abertura{
+  position:relative; isolation:isolate;
+  min-height:100svh;
+  display:grid; align-items:center;
+  padding-block:calc(var(--topo-h) + 40px) 96px;
+  background:
+    radial-gradient(120% 90% at 50% 0%,#3B1D2B 0%,transparent 62%),
+    linear-gradient(180deg,#2A1420 0%,#1B0C14 100%);
+  color:var(--perola);
+  overflow:hidden;
+}
+
+.portal{
+  position:relative;
+  max-width:760px; margin-inline:auto; text-align:center;
+  padding:clamp(74px,15vh,132px) clamp(22px,6vw,68px) clamp(40px,6vh,64px);
+  border:1px solid rgba(220,192,138,.34);
+  border-bottom:0;
+  border-radius:var(--arco);
+}
+/* segundo fio, em prata, por dentro: é o que dá o ar de moldura boa */
+.portal::before{
+  content:""; position:absolute; inset:11px 11px 0;
+  border:1px solid rgba(200,202,208,.14); border-bottom:0;
+  border-radius:var(--arco); pointer-events:none;
+}
+
+.portal__mono{
+  width:auto; height:clamp(52px,8vh,72px); margin:0 auto 22px; opacity:.92;
+}
+
+.portal__titulo{
+  font-size:clamp(2.6rem,7.2vw,4.9rem);
+  font-weight:300; line-height:1.02; color:var(--perola);
+}
+.portal__titulo em{
+  display:block; margin-top:.14em; font-weight:300;
+  background:linear-gradient(100deg,var(--ouro-claro) 0%,#F4E3C4 32%,var(--rosa-claro) 68%,var(--ouro-claro) 100%);
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
+}
+
+.portal__linha{
+  max-width:44ch; margin-inline:auto;
+  color:rgba(255,252,249,.76); font-size:1.01rem;
+}
+
+.portal__acoes{ margin-top:34px; display:flex; flex-wrap:wrap; gap:14px; justify-content:center; }
+
+/* seta de descer */
+.descer{
+  position:absolute; left:50%; bottom:26px; translate:-50% 0; z-index:2;
+  width:26px; height:44px; border:1px solid rgba(220,192,138,.4); border-radius:999px;
+  display:grid; place-items:start center; padding-top:9px;
+}
+.descer span{ width:2px; height:7px; border-radius:2px; background:var(--ouro-claro); animation:descer 1.9s var(--ease) infinite; }
+@keyframes descer{ 0%{opacity:0;transform:translateY(-3px)} 35%{opacity:1} 100%{opacity:0;transform:translateY(15px)} }
+
+@media (max-width:620px){
+  .portal{ padding-inline:18px; border-radius:44% 44% 0 0 / 15% 15% 0 0; }
+  .portal::before{ border-radius:44% 44% 0 0 / 15% 15% 0 0; }
+  .portal__acoes .btn{ width:100%; }
+}
+
+/* ==========================================================================
+   6. SOBRE — retrato em arco, cartão por cima
+   ========================================================================== */
+
+.sobre{ background:var(--creme); }
+
+.sobre__grade{
+  display:grid; grid-template-columns:repeat(12,1fr); align-items:center;
+  column-gap:clamp(16px,3vw,40px);
+}
+
+/* O retrato é limitado em largura de propósito: num arco 5/6, cada 100px de
+   largura viram 120 de altura, e sem teto ele passava da tela sozinho. */
+/* `grid-row:1` nos dois é obrigatório: as colunas 1/7 e 6/13 se sobrepõem na
+   coluna 6, e sem a linha explícita o Grid joga o cartão para a linha de
+   baixo em vez de deixar um por cima do outro. */
+.sobre__foto{ grid-column:1 / 7; grid-row:1; position:relative; margin:0; max-width:500px; }
+.arco{
+  position:relative; overflow:hidden;
+  border-radius:var(--arco);
+  aspect-ratio:5 / 6;
+  box-shadow:var(--sombra-alta);
+}
+.arco img{
+  width:100%; height:100%; object-fit:cover;
+  /* a foto é paisagem: o enquadramento tira o desktop e a impressora da direita */
+  object-position:26% 24%;
+  transform:translateY(var(--px,0)) scale(1.04);
+}
+/* Fio de ouro deslocado atrás do retrato. Sem borda embaixo, igual ao portal
+   da abertura: fechado, ele vira uma caixa solta aparecendo sob a foto. */
+.arco__fio{
+  position:absolute; inset:24px -22px -26px 24px; z-index:-1;
+  border:1px solid rgba(176,141,87,.42); border-bottom:0; border-radius:var(--arco);
+  pointer-events:none;
+}
+
+/* começa na coluna 6, uma antes de onde a foto acaba: a sobreposição é o que
+   tira a composição do lugar-comum "foto de um lado, texto do outro" */
+.sobre__cartao{
+  grid-column:6 / 13; grid-row:1; align-self:center; position:relative; z-index:2;
+  background:var(--perola);
+  border:1px solid rgba(176,141,87,.20);
+  border-radius:var(--raio);
+  padding:clamp(28px,4vw,52px);
+  box-shadow:var(--sombra);
+}
+.sobre__cartao > p + p{ margin-top:16px; }
+.sobre__cartao .titulo{ margin-bottom:26px; font-size:clamp(1.9rem,3.4vw,2.9rem); }
+
+.sobre__assinatura{
+  margin-top:28px; padding-top:22px;
+  border-top:1px solid rgba(176,141,87,.24);
+  font-family:var(--display); font-style:italic;
+  font-size:1.35rem; color:var(--rosa-fundo);
+}
+
+@media (max-width:900px){
+  .sobre__grade{ grid-template-columns:1fr; }
+  .sobre__foto{ grid-column:1; grid-row:auto; max-width:420px; margin-inline:auto; }
+  .sobre__cartao{ grid-column:1; grid-row:auto; margin-top:-52px; }
+  .arco__fio{ inset:18px -14px -18px 18px; }
+}
+
+/* ==========================================================================
+   7. AS FASES — a flor
+   `.fases__cena` é a pista de rolagem; `.fases__palco` fica preso dentro dela.
+   Sem JS (`html` sem .js-flor) a cena volta a ter altura automática, o palco
+   deixa de ser preso e os <li> voltam a ser uma lista comum — legível.
+   ========================================================================== */
+
+.fases{ padding-block:var(--s-secao) 0; background:var(--creme); overflow:clip; }
+.fases > .wrap:first-child{ margin-bottom:clamp(30px,5vw,56px); }
+
+.fases__cena{ position:relative; }
+.js-flor .fases__cena{ height:calc(100vh + 350vh); }
+
+.fases__palco{ display:grid; align-content:center; padding-block:clamp(20px,4vw,48px); }
+.js-flor .fases__palco{ position:sticky; top:0; height:100svh; }
+
+.fases__palco-in{
+  display:grid; align-items:center;
+  grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  gap:clamp(24px,5vw,72px);
+}
+
+/* --- a flor --- */
+.flor{
+  position:relative; width:100%; max-width:min(520px,72vh);
+  margin-inline:auto; aspect-ratio:1;
+}
+.flor svg{ width:100%; height:100%; display:block; overflow:visible; }
+
+/* --- o texto das fases --- */
+.fases__lista{ position:relative; }
+.js-flor .fases__lista{ min-height:238px; }
+.js-flor .fase{
+  position:absolute; inset:0;
+  opacity:0; transform:translateY(20px);
+  transition:opacity .55s var(--ease),transform .55s var(--ease);
+  pointer-events:none;
+}
+.js-flor .fase.is-ativa{ opacity:1; transform:none; pointer-events:auto; }
+
+.fase h3{
+  font-size:clamp(1.7rem,3.2vw,2.5rem); margin-bottom:16px; color:var(--texto-forte);
+}
+.fase p{ color:var(--texto-fraco); max-width:46ch; }
+/* o índice "01 / 05" é posto pelo flor.js — sem JS ele nem existe */
+.fase[data-indice]::before{
+  content:attr(data-indice); display:block;
+  font-family:var(--corpo); font-size:.7rem; letter-spacing:.24em;
+  color:var(--ouro-fundo); margin-bottom:14px;
+}
+
+/* sem JS: a lista vira uma lista de verdade */
+.fases__lista:not([data-pronto]) .fase + .fase{ margin-top:44px; }
+
+/* --- a trilha: 5 segmentos que também navegam --- */
+.fases__trilha{ display:flex; gap:8px; margin-top:34px; }
+.fases__trilha button{
+  flex:1; padding:0; height:34px; background:none; border:0; cursor:pointer;
+  display:flex; align-items:flex-start;
+}
+.fases__trilha button::before{
+  content:""; display:block; width:100%; height:2px; background:rgba(200,202,208,.55);
+  transition:background .4s var(--ease),transform .4s var(--ease);
+  transform-origin:0 50%;
+}
+.fases__trilha button:hover::before{ background:var(--rosa-claro); }
+.fases__trilha button.is-ativa::before{ background:linear-gradient(90deg,var(--ouro),var(--rosa)); transform:scaleY(2); }
+.fases__trilha button span{
+  position:absolute; width:1px; height:1px; overflow:hidden;
+  clip-path:inset(50%); white-space:nowrap;
+}
+
+@media (max-width:900px){
+  .fases__palco{ align-content:start; padding-top:calc(var(--topo-h) + 14px); }
+  /* preso no topo, o palco precisa de fundo próprio: senão a lista passa por baixo dele */
+  .js-flor .fases__palco{ background:var(--creme); }
+  .fases__palco-in{ grid-template-columns:1fr; gap:22px; }
+  .flor{ max-width:min(290px,34vh); }
+  .js-flor .fases__lista{ min-height:264px; }
+  .fase p{ max-width:none; }
+  .fase h3{ font-size:1.6rem; }
+}
+
+/* ==========================================================================
+   8. ESPECIALIDADES
+   ========================================================================== */
+
+.duo{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:clamp(20px,3vw,32px); }
+
+.carta{
+  position:relative; isolation:isolate; overflow:hidden;
+  background:var(--perola);
+  border:1px solid rgba(176,141,87,.22);
+  border-radius:var(--raio);
+  padding:clamp(30px,4vw,50px);
+  transform:perspective(900px) rotateY(var(--tx,0)) rotateX(var(--ty,0));
+  transition:transform .5s var(--ease),box-shadow .5s var(--ease),border-color .4s ease;
+  box-shadow:var(--sombra);
+}
+.carta.is-inclinado{ transition-duration:.12s; box-shadow:var(--sombra-alta); border-color:rgba(176,141,87,.45); }
+/* o brilho passa POR BAIXO do texto: por cima ele apaga a leitura */
+.carta::after{
+  content:""; position:absolute; inset:0; z-index:-1; opacity:0;
+  background:radial-gradient(420px circle at var(--bx,50%) var(--by,50%),rgba(231,188,198,.42),transparent 62%);
+  transition:opacity .45s ease;
+}
+.carta.is-inclinado::after{ opacity:1; }
+
+.carta__num{
+  font-family:var(--display); font-size:3.4rem; line-height:1;
+  color:rgba(176,141,87,.26); display:block; margin-bottom:10px;
+}
+.carta h3{ font-size:clamp(1.7rem,3vw,2.3rem); margin-bottom:14px; }
+.carta p{ color:var(--texto-fraco); margin-bottom:26px; }
+
+/* ==========================================================================
+   9. A CONSULTA
+   ========================================================================== */
+
+.tres{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:clamp(26px,4vw,48px); }
+
+.pilar__icone{
+  display:grid; place-items:center; width:52px; height:52px; margin-bottom:20px;
+  border-radius:999px; border:1px solid rgba(176,141,87,.34);
+  background:linear-gradient(150deg,rgba(220,192,138,.16),rgba(231,188,198,.16));
+  color:var(--ouro-fundo);
+}
+.pilar__icone svg{ width:23px; height:23px; }
+.pilar h3{ font-size:1.55rem; margin-bottom:12px; }
+.pilar p{ color:var(--texto-fraco); }
+
+.horarios li{
+  display:flex; justify-content:space-between; gap:14px; align-items:baseline;
+  padding:11px 0; border-bottom:1px dotted rgba(176,141,87,.34);
+}
+.horarios span{ color:var(--texto-fraco); font-size:.92rem; }
+.horarios b{ font-weight:400; font-family:var(--display); font-size:1.18rem; color:var(--texto-forte); }
+
+/* --- orientações --- */
+.orient{ margin-top:clamp(64px,9vw,116px); max-width:820px; margin-inline:auto; }
+.orient__titulo{ font-size:clamp(1.8rem,3.2vw,2.5rem); text-align:center; }
+.orient__sub{ text-align:center; color:var(--texto-fraco); margin:14px 0 36px; }
+
+.guia{
+  border-top:1px solid rgba(176,141,87,.28);
+  background:transparent;
+}
+.guia:last-of-type{ border-bottom:1px solid rgba(176,141,87,.28); }
+
+.guia summary{
+  display:flex; align-items:center; justify-content:space-between; gap:20px;
+  padding:24px 4px; cursor:pointer; list-style:none;
+  transition:color .3s ease;
+}
+.guia summary::-webkit-details-marker{ display:none; }
+.guia summary:hover{ color:var(--rosa-fundo); }
+.guia__nome{ font-family:var(--display); font-size:clamp(1.25rem,2.2vw,1.6rem); color:var(--texto-forte); }
+.guia summary:hover .guia__nome{ color:var(--rosa-fundo); }
+
+.guia__mais{ position:relative; flex:0 0 auto; width:18px; height:18px; }
+.guia__mais::before,.guia__mais::after{
+  content:""; position:absolute; inset:50% 0 auto; height:1px; background:var(--ouro-fundo);
+  transition:transform .4s var(--ease);
+}
+.guia__mais::after{ transform:rotate(90deg); }
+.guia[open] .guia__mais::after{ transform:rotate(0); }
+
+.guia__corpo{ padding:2px 4px 32px; max-width:64ch; }
+.guia__corpo h4{
+  font-family:var(--corpo); font-size:.7rem; font-weight:500;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--ouro-fundo);
+  margin:26px 0 12px;
+}
+.guia__corpo ul li{
+  position:relative; padding-left:20px; margin-bottom:9px; color:var(--texto-fraco);
+}
+.guia__corpo ul li::before{
+  content:""; position:absolute; left:2px; top:.68em;
+  width:5px; height:5px; background:var(--rosa); transform:rotate(45deg);
+}
+.guia__nota{
+  margin-top:26px; padding:18px 22px;
+  background:var(--blush); border-left:2px solid var(--rosa);
+  border-radius:0 var(--raio-sm) var(--raio-sm) 0;
+  font-style:italic; font-family:var(--display); font-size:1.15rem; color:var(--texto-forte);
+}
+
+/* ==========================================================================
+   10. A CLÍNICA
+   ========================================================================== */
+
+.clinica__grade{ display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:clamp(30px,5vw,70px); align-items:center; }
+.clinica__texto p + p{ margin-top:16px; }
+.clinica__texto .titulo{ margin-bottom:24px; }
+.clinica__texto > p{ color:var(--texto-fraco); }
+
+/* Par desencontrado: a fachada em pé, o lounge deitado e descido. O
+   `aspect-ratio` em cada figure é o que dá altura — sem ele as duas ficavam
+   com a altura natural da foto e sobrava uma célula vazia na grade. */
+.clinica__fotos{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(12px,2vw,22px); align-items:start; }
+.clinica__fotos figure{ margin:0; overflow:hidden; border-radius:var(--raio); box-shadow:var(--sombra); }
+.clinica__fotos figure:first-child{ aspect-ratio:3 / 4; }
+.clinica__fotos figure:last-child{ aspect-ratio:4 / 3; margin-top:clamp(36px,7vw,88px); }
+.clinica__fotos img{ width:100%; height:100%; object-fit:cover; transform:translateY(var(--px,0)) scale(1.03); }
+
+@media (max-width:860px){
+  .clinica__grade{ grid-template-columns:1fr; }
+}
+
+/* ==========================================================================
+   11. CONTATO
+   ========================================================================== */
+
+.contato{
+  position:relative; isolation:isolate; overflow:hidden;
+  background:linear-gradient(170deg,#2A1420 0%,#1B0C14 100%);
+  color:var(--perola);
+}
+.contato .titulo{ color:var(--perola); }
+.contato .titulo em{ color:var(--rosa-claro); }
+.contato__texto > p{ color:rgba(255,252,249,.74); max-width:46ch; }
+
+.contato__grade{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.85fr); gap:clamp(34px,5vw,72px); align-items:center; }
+
+.contato__acoes{ margin-top:32px; display:flex; flex-wrap:wrap; gap:14px; }
+
+.contato__dados{ margin-top:40px; display:grid; gap:22px; }
+.contato__dados li{ padding-top:18px; border-top:1px solid rgba(220,192,138,.22); }
+.contato__dados span{
+  display:block; font-size:.68rem; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--ouro-claro); margin-bottom:7px;
+}
+.contato__dados b{ font-weight:300; font-size:1.02rem; color:rgba(255,252,249,.9); line-height:1.5; }
+
+.contato__mapa{
+  border-radius:var(--raio); overflow:hidden;
+  border:1px solid rgba(220,192,138,.26);
+  box-shadow:var(--sombra-alta);
+  aspect-ratio:4 / 5;
+}
+.contato__mapa iframe{ width:100%; height:100%; border:0; display:block; filter:grayscale(.35) contrast(1.05); }
+
+@media (max-width:860px){
+  .contato__grade{ grid-template-columns:1fr; }
+  .contato__mapa{ aspect-ratio:4 / 3; }
+  .contato__acoes .btn{ flex:1 1 100%; }
+}
+
+/* ==========================================================================
+   12. RODAPÉ
+   ========================================================================== */
+
+.rodape{ background:var(--vinho-fundo); color:rgba(255,252,249,.7); padding-block:clamp(50px,7vw,80px) 34px; }
+.rodape__in{ display:flex; flex-wrap:wrap; gap:44px; justify-content:space-between; }
+.rodape__marca img{ width:auto; height:56px; opacity:.9; margin-bottom:16px; }
+.rodape__marca p{ font-family:var(--display); font-style:italic; font-size:1.15rem; color:var(--rosa-claro); }
+
+.rodape__links{ display:flex; flex-wrap:wrap; gap:44px; }
+.rodape__grupo{
+  font-family:var(--corpo); font-size:.68rem; font-weight:500; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--ouro-claro); margin-bottom:14px;
+}
+.rodape__links a{
+  display:block; text-decoration:none; font-size:.88rem; padding:5px 0;
+  color:rgba(255,252,249,.7); transition:color .3s ease;
+}
+.rodape__links a:hover{ color:var(--rosa-claro); }
+
+.rodape__fim{
+  margin-top:44px; padding-top:26px; border-top:1px solid rgba(255,252,249,.12);
+  display:grid; gap:10px; font-size:.79rem; color:rgba(255,252,249,.55);
+}
+.rodape__crm{ color:rgba(255,252,249,.82); letter-spacing:.02em; }
+.rodape__crm strong{ color:var(--ouro-claro); font-weight:400; }
+.rodape__aviso{ max-width:70ch; }
+.rodape__fecho a{ color:var(--rosa-claro); text-decoration:none; border-bottom:1px solid transparent; }
+.rodape__fecho a:hover{ border-color:currentColor; }
+
+/* ==========================================================================
+   13. WHATSAPP FLUTUANTE
+   ========================================================================== */
+
+.zap-flut{
+  position:fixed; right:clamp(14px,3vw,26px); bottom:clamp(14px,3vw,26px); z-index:70;
+  display:inline-flex; align-items:center; gap:9px;
+  padding:13px 20px; border-radius:999px; text-decoration:none;
+  background:var(--vinho); color:var(--perola);
+  border:1px solid rgba(220,192,138,.36);
+  box-shadow:0 16px 38px -16px rgba(27,12,20,.7);
+  transition:transform .4s var(--ease),background .3s ease,border-color .3s ease;
+}
+.zap-flut:hover{ transform:translateY(-3px); background:var(--vinho-alto); border-color:var(--ouro-claro); }
+.zap-flut svg{ width:21px; height:21px; color:var(--rosa-claro); }
+.zap-flut__texto{ font-size:.85rem; letter-spacing:.03em; }
+
+@media (max-width:560px){
+  .zap-flut{ padding:14px; }
+  .zap-flut__texto{ display:none; }
+}
+
+/* ==========================================================================
+   14. SEDA — o canvas WebGL das faixas escuras
+   O canvas roda em opacidade cheia; quem protege a leitura é o véu do ::after.
+   ========================================================================== */
+
+.seda-tela{
+  position:absolute; inset:0; z-index:-2;
+  width:100%; height:100%; display:block; pointer-events:none;
+}
+[data-seda]{ position:relative; isolation:isolate; }
+[data-seda]::after{
+  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background:radial-gradient(120% 80% at 50% 45%,rgba(27,12,20,.34) 0%,rgba(27,12,20,.72) 70%,rgba(27,12,20,.86) 100%);
+}
+
+/* ==========================================================================
+   15. MOVIMENTO REDUZIDO
+   Desliga o que se mexe sozinho; mantém o que responde ao usuário.
+   ========================================================================== */
+
+@media (prefers-reduced-motion:reduce){
+  html{ scroll-behavior:auto; }
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+  .reveal{ opacity:1; transform:none; filter:none; }
+  .descer span{ animation:none; opacity:.8; }
+  /* a flor abre inteira e as cinco fases voltam a ser uma lista */
+  .js-flor .fases__cena{ height:auto; }
+  .js-flor .fases__palco{ position:static; height:auto; }
+  .js-flor .fases__lista{ min-height:0; }
+  .js-flor .fase{ position:static; opacity:1; transform:none; pointer-events:auto; }
+  .js-flor .fase + .fase{ margin-top:40px; }
+  .fases__trilha{ display:none; }
+}

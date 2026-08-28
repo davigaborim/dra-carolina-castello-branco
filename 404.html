@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Página não encontrada — Dra. Carolina Castello Branco</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#2A1420">
+<!-- Os caminhos aqui começam na RAIZ de propósito: esta página aparece em
+     qualquer endereço errado, inclusive /uma/pasta/funda/, e caminho relativo
+     quebraria o CSS lá. Vale para site publicado na raiz do domínio. -->
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  /* a flor da página de erro tem uma pétala faltando — é a piada, e ela
+     não impede ninguém de chegar onde queria */
+  .erro__flor{ width:clamp(120px,22vw,190px); margin:0 auto 26px; }
+  .erro__flor svg{ width:100%; height:auto; display:block; }
+</style>
+</head>
+<body>
+
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+<main id="conteudo">
+<section class="abertura" data-seda data-seda-semente="7" data-seda-velocidade="0.34">
+  <div class="wrap">
+    <div class="portal">
+
+      <div class="erro__flor" aria-hidden="true">
+        <svg viewBox="0 0 64 64">
+          <defs>
+            <linearGradient id="p404" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stop-color="#9E4F66"/>
+              <stop offset="100%" stop-color="#E7BCC6"/>
+            </linearGradient>
+            <path id="pet404" d="M32 32C42 24.2 40.6 11.2 32 6C23.4 11.2 22 24.2 32 32Z"/>
+          </defs>
+          <g fill="url(#p404)" stroke="#B08D57" stroke-width="1">
+            <use href="#pet404"/>
+            <use href="#pet404" transform="rotate(144 32 32)"/>
+            <use href="#pet404" transform="rotate(216 32 32)"/>
+            <use href="#pet404" transform="rotate(288 32 32)"/>
+          </g>
+          <!-- a pétala das 72° caiu -->
+          <path d="M52 44c4 3 7 3 9 1" fill="none" stroke="rgba(231,188,198,.45)" stroke-width="1" stroke-linecap="round"/>
+          <circle cx="32" cy="32" r="5.2" fill="#DCC08A"/>
+        </svg>
+      </div>
+
+      <p class="rotulo rotulo--claro">Erro 404</p>
+
+      <h1 class="portal__titulo">
+        Esta página
+        <em>caiu como uma pétala.</em>
+      </h1>
+
+      <span class="fio-orn" aria-hidden="true"><i></i></span>
+
+      <p class="portal__linha">
+        O endereço não existe mais ou foi digitado com um caractere a mais.
+        O consultório continua no mesmo lugar.
+      </p>
+
+      <div class="portal__acoes">
+        <a class="btn btn--solido btn--lg" href="/">
+          Voltar ao início
+          <svg class="btn__seta" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m0 0-5-5m5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="btn btn--vazado btn--lg" href="https://wa.me/5567984673592" target="_blank" rel="noopener">Falar no WhatsApp</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+</main>
+
+<script src="/js/seda.js" defer></script>
+</body>
+</html>
