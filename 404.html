@@ -14,6 +14,24 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
+<script>
+/* Só para a prévia no GitHub Pages. Lá o site mora em /<repositório>/, então
+   os caminhos a partir da raiz — que são os corretos no domínio final, e o
+   motivo de esta página usá-los — apontam para fora dele e o 404 aparece sem
+   estilo. Isto reaponta CSS, ícone e script para dentro do repositório.
+   Em produção (domínio próprio) a condição é falsa e nada disso roda. */
+if (location.hostname.endsWith('.github.io')) {
+  var raiz = '/' + location.pathname.split('/')[1];
+  document.head.insertAdjacentHTML('beforeend',
+    '<link rel="stylesheet" href="' + raiz + '/css/style.css">' +
+    '<link rel="icon" href="' + raiz + '/favicon.svg" type="image/svg+xml">');
+  addEventListener('DOMContentLoaded', function () {
+    var s = document.createElement('script');
+    s.src = raiz + '/js/seda.js';
+    document.body.appendChild(s);
+  });
+}
+</script>
 <style>
   /* a flor da página de erro tem uma pétala faltando — é a piada, e ela
      não impede ninguém de chegar onde queria */
