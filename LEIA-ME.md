@@ -148,10 +148,27 @@ Detalhes que importam se for mexer:
   `<html>`, a cena volta a ter altura automática e as cinco fases voltam a ser
   uma lista comum — legível e completa.
 - **A trilha de cinco segmentos embaixo do texto navega.** Cada segmento é um
-  `<button>` com rótulo para leitor de tela; clicar rola até a fase. O enfeite
-  também é o índice.
+  `<button>` com rótulo para leitor de tela; clicar rola até a fase. Os
+  segmentos já vencidos ficam pintados de rosa: é o "2 de 5" sem escrever
+  "2 de 5". O enfeite também é o índice.
+- **Três coisas dizem ao visitante que é ele quem abre a flor.** Um arco de
+  ouro fecha a volta em torno dela conforme a página rola — barra de
+  progresso comum, só que redonda e no lugar onde a coisa acontece; o aro
+  fino por baixo é o trilho vazio, e tem que ter a mesma espessura do arco,
+  senão não lê como "quanto falta". Com a flor ainda fechada aparece a dica
+  "role para abrir", com a **mesma cápsula e a mesma setinha da abertura do
+  site** — o visitante já fez esse gesto uma vez nesta página, e reconhecer
+  é mais rápido que ler. A dica some no primeiro empurrão e volta se ele
+  subir de novo.
+- **O assentamento é por tempo, não por quadro.** O antigo `tAtual += (tAlvo
+  - tAtual) * 0.12` andava um passo por quadro: num navegador que só entrega
+  cinco quadros por segundo a flor ficava quatro vezes atrás da rolagem e
+  **nunca chegava a abrir de todo** — que é exatamente o "a flor travou" que
+  apareceu num navegador de fora. Agora o passo usa o tempo real do quadro e
+  ela chega no mesmo lugar em 60Hz, em 120Hz e num navegador engasgado.
 - Com `prefers-reduced-motion: reduce`, a flor nasce aberta, o painel deixa de
   ser preso e as cinco fases viram uma lista. **Sem laço de animação nenhum.**
+  A dica de rolagem some junto: não há nada para rolar ali.
 
 ### A seda — `js/seda.js`
 
@@ -175,6 +192,25 @@ Custo: o canvas é renderizado a **55% do tamanho real** e o `devicePixelRatio`
 o laço inteiro; todas as seções compartilham **um laço só**.
 
 **Sem WebGL o canvas nem é criado** e fica o gradiente vinho do CSS. Nada quebra.
+
+**Três defesas contra o tecido travar** (todas nasceram de um navegador de fora
+mostrando o fundo parado):
+
+1. **Contexto perdido.** O navegador pode tomar o contexto WebGL de volta a
+   qualquer hora — troca de GPU no notebook, driver que reinicia, abas demais
+   com WebGL. Quando isso acontece o `drawArrays` vira um nada silencioso e o
+   canvas fica **para sempre no último quadro**, sem um erro sequer no console.
+   Agora ouvimos `webglcontextlost` (com `preventDefault`, senão o navegador
+   nunca restaura) e remontamos tudo no `webglcontextrestored`. Se em 6s não
+   voltar, o canvas é removido e fica o gradiente — melhor honesto que
+   congelado.
+2. **Volta pelo botão "voltar".** Safari e Firefox devolvem a página inteira do
+   bfcache e nem sempre disparam `visibilitychange`; o laço tinha sido
+   desligado e não religava mais. `pageshow` religa.
+3. **Máquina lenta.** O shader faz 15 avaliações de ruído por pixel; sem
+   aceleração ele roda a dois quadros por segundo, o que o visitante lê como
+   travado. Um vigia conta os quadros lentos e **baixa a resolução**; se ainda
+   assim não der, para num quadro parado.
 
 ### O portal e o arco
 
@@ -280,6 +316,17 @@ ativo, então pode haver conteúdo que não aparecia na home).
   `.btn{display:inline-flex}` da seção 3 do CSS vem depois no arquivo e ganha —
   media query **não** conta como especificidade. O botão "Agendar" ficava
   aparecendo espremido ao lado do hambúrguer.
+- **Nunca `overflow-x: hidden` no `body`, nem `overflow: clip` nos dois eixos
+  em quem envolve o palco da flor.** Overflow diferente de `visible` num eixo
+  faz o outro virar `auto`, e a caixa vira porta de rolagem — que é a causa
+  nº 1 de `position: sticky` que funciona no Chrome e falha no vizinho. O
+  palco da flor **depende** de sticky. Use `overflow-x: clip`, que corta sem
+  virar porta de rolagem, com `overflow-x: hidden` na linha de cima como
+  reserva para quem não conhece `clip`.
+- **Unidade nova sempre com reserva na linha de cima.** `min-height: 100svh`
+  sozinho não é "cai para 100vh": navegador que não conhece `svh` **joga a
+  regra inteira fora**, e a abertura desabava para a altura do texto. Escreva
+  `100vh` e, na linha seguinte, `100svh`.
 - **O 404 usa caminhos a partir da raiz** (`/css/style.css`) de propósito: ele
   aparece em qualquer endereço errado, inclusive `seudominio.com/uma/pasta/
   funda/`, e caminho relativo quebraria o CSS lá. Isso vale para site publicado
@@ -306,3 +353,15 @@ Rodado num Chrome de verdade, sem servidor:
   cena volta de 4,5 telas para 1283 px e as cinco fases ficam visíveis juntas.
 - **Sem JavaScript**: as cinco fases continuam no documento e legíveis.
 - **Sem erro de console** em nenhuma passagem.
+
+E, depois do relato de fundo e flor travados num navegador de fora, rodado nos
+**três motores** (Chromium, Gecko/Firefox e WebKit/Safari), com o mesmo
+resultado nos três:
+
+- A seda anima; **perde o contexto WebGL e volta a animar sozinha**; e, se o
+  contexto não volta, o canvas sai e fica o gradiente (0 canvas restantes).
+- O palco continua `sticky` nos três, e a flor **fecha a volta do arco e abre
+  por completo** no fim da pista (deslocamento do traço em 0).
+- A dica "role para abrir" aparece com a flor fechada e some no empurrão.
+- **Sem estouro horizontal** com `overflow-x: clip`, em 1440 e 390px.
+- Sem erro de console em nenhum dos três.

@@ -97,7 +97,13 @@ body{
   line-height:1.68;
   color:var(--texto);
   background:var(--creme);
+  /* `overflow-x:hidden` no body faz o body virar caixa de rolagem, e é a
+     causa nº 1 de `position:sticky` que funciona no Chrome e não funciona
+     no vizinho — o palco da flor depende de sticky. `clip` corta igual sem
+     virar caixa de rolagem nenhuma. O `hidden` fica de reserva para quem
+     não conhece `clip` e cai fora da linha seguinte. */
   overflow-x:hidden;
+  overflow-x:clip;
   -webkit-font-smoothing:antialiased;
 }
 
@@ -314,6 +320,9 @@ strong{ font-weight:500; color:var(--texto-forte); }
 
 .abertura{
   position:relative; isolation:isolate;
+  /* vh primeiro, svh depois: navegador que não conhece `svh` JOGA A REGRA
+     FORA inteira, e a abertura desabava para a altura do texto. */
+  min-height:100vh;
   min-height:100svh;
   display:grid; align-items:center;
   padding-block:calc(var(--topo-h) + 40px) 96px;
@@ -447,14 +456,18 @@ strong{ font-weight:500; color:var(--texto-forte); }
    deixa de ser preso e os <li> voltam a ser uma lista comum — legível.
    ========================================================================== */
 
-.fases{ padding-block:var(--s-secao) 0; background:var(--creme); overflow:clip; }
+/* Só no eixo X. `overflow:clip` nos dois eixos é o jeito mais fácil de
+   matar o `position:sticky` de dentro em navegador que trate a caixa como
+   porta de rolagem — e aqui o único transbordo possível é lateral. */
+.fases{ padding-block:var(--s-secao) 0; background:var(--creme); overflow-x:clip; }
 .fases > .wrap:first-child{ margin-bottom:clamp(30px,5vw,56px); }
 
 .fases__cena{ position:relative; }
-.js-flor .fases__cena{ height:calc(100vh + 350vh); }
+.js-flor .fases__cena{ height:450vh; }
 
 .fases__palco{ display:grid; align-content:center; padding-block:clamp(20px,4vw,48px); }
-.js-flor .fases__palco{ position:sticky; top:0; height:100svh; }
+/* mesma história do herói: vh de reserva antes do svh */
+.js-flor .fases__palco{ position:sticky; top:0; height:100vh; height:100svh; }
 
 .fases__palco-in{
   display:grid; align-items:center;
@@ -468,6 +481,30 @@ strong{ font-weight:500; color:var(--texto-forte); }
   margin-inline:auto; aspect-ratio:1;
 }
 .flor svg{ width:100%; height:100%; display:block; overflow:visible; }
+
+/* A dica de rolagem, pendurada logo abaixo da flor. É a MESMA cápsula com
+   a setinha da abertura do site: o visitante já fez esse gesto uma vez
+   nesta página, e reconhecer é mais rápido que ler. O flor.js tira a
+   classe no primeiro empurrão e devolve se ele subir de volta. */
+.flor__dica{
+  position:absolute; left:50%; bottom:-2%; translate:-50% 0;
+  display:flex; align-items:center; gap:10px; white-space:nowrap;
+  font-family:var(--corpo); font-size:.68rem; font-weight:500;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--ouro-fundo);
+  pointer-events:none;
+  opacity:0; transform:translateY(6px);
+  transition:opacity .5s var(--ease),transform .5s var(--ease);
+}
+.flor.is-fechada .flor__dica{ opacity:1; transform:none; }
+.flor__dica-seta{
+  flex:none; width:17px; height:27px; border-radius:999px;
+  border:1px solid rgba(176,141,87,.55);
+  display:grid; place-items:start center; padding-top:6px;
+}
+.flor__dica-seta::before{
+  content:""; display:block; width:2px; height:6px; border-radius:2px;
+  background:var(--ouro); animation:descer 1.9s var(--ease) infinite;
+}
 
 /* --- o texto das fases --- */
 .fases__lista{ position:relative; }
@@ -506,6 +543,8 @@ strong{ font-weight:500; color:var(--texto-forte); }
   transform-origin:0 50%;
 }
 .fases__trilha button:hover::before{ background:var(--rosa-claro); }
+/* já vencidas ficam pintadas: é o "2 de 5" sem escrever "2 de 5" */
+.fases__trilha button.is-passada::before{ background:var(--rosa); }
 .fases__trilha button.is-ativa::before{ background:linear-gradient(90deg,var(--ouro),var(--rosa)); transform:scaleY(2); }
 .fases__trilha button span{
   position:absolute; width:1px; height:1px; overflow:hidden;
@@ -516,8 +555,10 @@ strong{ font-weight:500; color:var(--texto-forte); }
   .fases__palco{ align-content:start; padding-top:calc(var(--topo-h) + 14px); }
   /* preso no topo, o palco precisa de fundo próprio: senão a lista passa por baixo dele */
   .js-flor .fases__palco{ background:var(--creme); }
-  .fases__palco-in{ grid-template-columns:1fr; gap:22px; }
+  /* a folga maior é onde a dica de rolagem fica pendurada */
+  .fases__palco-in{ grid-template-columns:1fr; gap:40px; }
   .flor{ max-width:min(290px,34vh); }
+  .flor__dica{ font-size:.62rem; gap:8px; }
   .js-flor .fases__lista{ min-height:264px; }
   .fase p{ max-width:none; }
   .fase h3{ font-size:1.6rem; }
@@ -775,4 +816,6 @@ strong{ font-weight:500; color:var(--texto-forte); }
   .js-flor .fase{ position:static; opacity:1; transform:none; pointer-events:auto; }
   .js-flor .fase + .fase{ margin-top:40px; }
   .fases__trilha{ display:none; }
+  /* nada a rolar aqui: a flor já está aberta e as cinco fases estão à vista */
+  .flor__dica{ display:none; }
 }

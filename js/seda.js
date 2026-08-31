@@ -10,6 +10,26 @@
    na tela — fora dela o rAF nem roda, e a aba escondida derruba o laço
    inteiro. Sem WebGL o canvas é removido e fica o gradiente do CSS.
 
+   TRÊS COISAS QUE TRAVAVAM O TECIDO EM OUTROS NAVEGADORES:
+
+     1. Contexto perdido. O navegador pode tomar o contexto WebGL de volta a
+        qualquer momento (troca de GPU no notebook, driver que reinicia, abas
+        demais com WebGL abertas). Quando isso acontece o drawArrays vira um
+        nada silencioso e o canvas fica pra sempre no último quadro pintado —
+        travado, sem erro nenhum no console. Agora ouvimos
+        webglcontextlost/restored e remontamos; se não voltar, o canvas sai
+        e fica o gradiente, que é honesto.
+
+     2. Volta pelo botão "voltar". Safari e Firefox guardam a página inteira
+        (bfcache) e nem sempre disparam visibilitychange na volta — o laço
+        tinha sido desligado e nunca mais religava. Agora `pageshow` religa.
+
+     3. GPU lenta ou desenho por software. Este shader faz 15 avaliações de
+        ruído por pixel; numa máquina sem aceleração ele roda a dois quadros
+        por segundo, o que o visitante lê como "travado". Agora medimos o
+        tempo de quadro e baixamos a resolução; se ainda assim não der,
+        paramos num quadro parado — parado é bonito, engasgado não é.
+
    Ajustes por atributo, todos opcionais:
      data-seda-velocidade  0.42  o quão rápido o tecido anda
      data-seda-escala      1.15  zoom: maior = dobra mais fina
@@ -118,6 +138,11 @@
     '}'
   ].join('\n');
 
+  var OPCOES = {
+    antialias: false, alpha: false, depth: false, stencil: false,
+    powerPreference: 'low-power'
+  };
+
   function compilar(gl, tipo, fonte) {
     var s = gl.createShader(tipo);
     gl.shaderSource(s, fonte);
@@ -134,33 +159,41 @@
     canvas.className = 'seda-tela';
     canvas.setAttribute('aria-hidden', 'true');
 
-    var gl = null;
+    var gl = null, uCena = null, uPar = null;
+    var perdido = false, morto = false, volta = 0;
+
     try {
-      gl = canvas.getContext('webgl', { antialias: false, alpha: false, depth: false, powerPreference: 'low-power' })
-        || canvas.getContext('experimental-webgl');
+      gl = canvas.getContext('webgl', OPCOES) || canvas.getContext('experimental-webgl', OPCOES);
     } catch (_) { gl = null; }
     if (!gl) return null;
 
-    var vs = compilar(gl, gl.VERTEX_SHADER, VERTEX);
-    var fs = compilar(gl, gl.FRAGMENT_SHADER, FRAGMENT);
-    if (!vs || !fs) return null;
+    /* Tudo que vive dentro do contexto: shader, programa, buffer, uniforms.
+       Perder o contexto apaga tudo isso, então precisa ser remontável. */
+    function montarPrograma() {
+      var vs = compilar(gl, gl.VERTEX_SHADER, VERTEX);
+      var fs = compilar(gl, gl.FRAGMENT_SHADER, FRAGMENT);
+      if (!vs || !fs) return false;
 
-    var prog = gl.createProgram();
-    gl.attachShader(prog, vs);
-    gl.attachShader(prog, fs);
-    gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null;
-    gl.useProgram(prog);
+      var prog = gl.createProgram();
+      gl.attachShader(prog, vs);
+      gl.attachShader(prog, fs);
+      gl.linkProgram(prog);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return false;
+      gl.useProgram(prog);
 
-    var buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    var loc = gl.getAttribLocation(prog, 'a_pos');
-    gl.enableVertexAttribArray(loc);
-    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      var buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      var loc = gl.getAttribLocation(prog, 'a_pos');
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
-    var uCena = gl.getUniformLocation(prog, 'u_cena');
-    var uPar = gl.getUniformLocation(prog, 'u_par');
+      uCena = gl.getUniformLocation(prog, 'u_cena');
+      uPar = gl.getUniformLocation(prog, 'u_par');
+      return true;
+    }
+
+    if (!montarPrograma()) return null;
 
     function num(nome, padrao) {
       var v = parseFloat(alvo.getAttribute('data-seda-' + nome));
@@ -189,10 +222,47 @@
     medir();
     if ('ResizeObserver' in window) new ResizeObserver(medir).observe(alvo);
 
+    function desistir() {
+      morto = true;
+      perdido = true;
+      clearTimeout(volta);
+      if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
+    }
+
+    /* Sem o preventDefault o navegador NUNCA restaura o contexto. */
+    canvas.addEventListener('webglcontextlost', function (e) {
+      e.preventDefault();
+      perdido = true;
+      clearTimeout(volta);
+      /* Se em 6s não voltou, é porque não vai voltar. Melhor o gradiente do
+         CSS do que um quadro congelado fingindo que é animação. */
+      volta = setTimeout(desistir, 6000);
+    }, false);
+
+    canvas.addEventListener('webglcontextrestored', function () {
+      clearTimeout(volta);
+      if (morto) return;
+      if (!montarPrograma()) { desistir(); return; }
+      L = 0; A = 0;            /* força medir() a reaplicar o viewport */
+      medir();
+      perdido = false;
+    }, false);
+
     return {
       alvo: alvo,
       visivel: false,
+      viva: function () { return !morto && !perdido && !gl.isContextLost(); },
+      /* Baixa a resolução quando a máquina não dá conta. Devolve false
+         quando já está no fundo do poço e não há mais o que afrouxar. */
+      afrouxar: function () {
+        if (morto || resolucao <= 0.26) return false;
+        resolucao = Math.max(0.25, resolucao * 0.7);
+        L = 0; A = 0;
+        if (!perdido) medir();
+        return true;
+      },
       desenhar: function (tempo) {
+        if (morto || perdido || gl.isContextLost()) return;
         medir();
         /* a rolagem empurra o tecido devagar: dá profundidade sem parallax */
         var r = alvo.getBoundingClientRect();
@@ -201,9 +271,7 @@
         gl.uniform4f(uPar, velocidade, escala, deriva, 0);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
       },
-      perder: function () {
-        if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
-      }
+      perder: desistir
     };
   }
 
@@ -218,18 +286,47 @@
 
   var relogio = 0, ultimo = 0, rodando = false, pedido = 0;
 
+  /* Vigia de desempenho: conta quadros lentos numa janela e, se a máquina
+     não sustenta ~30fps, baixa a resolução de todas as telas. Três janelas
+     ruins sem melhora e o tecido para num quadro parado. */
+  var lentos = 0, contados = 0, quedas = 0;
+
   function algumaVisivel() {
-    for (var i = 0; i < telas.length; i++) if (telas[i].visivel) return true;
+    for (var i = 0; i < telas.length; i++) {
+      if (telas[i].visivel && telas[i].viva()) return true;
+    }
     return false;
+  }
+
+  function pesar(dt) {
+    contados++;
+    if (dt > 0.034) lentos++;
+    if (contados < 48) return;
+
+    var ruim = lentos > 30;
+    contados = 0; lentos = 0;
+    if (!ruim) { quedas = 0; return; }
+
+    quedas++;
+    var afrouxou = false;
+    for (var i = 0; i < telas.length; i++) {
+      if (telas[i].afrouxar()) afrouxou = true;
+    }
+    if (!afrouxou || quedas >= 3) desligar();
   }
 
   function quadro(agora) {
     if (!rodando) return;
-    if (ultimo) relogio += Math.min(0.05, (agora - ultimo) / 1000);
+    var dt = 0;
+    if (ultimo) { dt = Math.min(0.05, (agora - ultimo) / 1000); relogio += dt; }
     ultimo = agora;
+
     for (var i = 0; i < telas.length; i++) {
       if (telas[i].visivel) telas[i].desenhar(relogio);
     }
+
+    if (dt) pesar(dt);
+    if (!rodando) return;                 /* pesar() pode ter desligado */
     pedido = requestAnimationFrame(quadro);
   }
 
@@ -248,7 +345,7 @@
   /* Movimento reduzido: um quadro parado e mais nada. O tecido continua lá,
      só não se mexe. */
   function quadroParado() {
-    telas.forEach(function (t) { t.desenhar(0); });
+    telas.forEach(function (t) { if (t.viva()) t.desenhar(0); });
   }
 
   if ('IntersectionObserver' in window) {
@@ -271,8 +368,18 @@
     if (document.hidden) desligar(); else ligar();
   });
 
+  /* Volta pelo botão "voltar": Safari e Firefox devolvem a página do bfcache
+     sem disparar visibilitychange, e o laço ficava desligado pra sempre —
+     que é exatamente o "fundo travado" que apareceu no outro navegador. */
+  window.addEventListener('pageshow', function () { ligar(); });
+  window.addEventListener('focus', function () { ligar(); });
+
   if (semMovimento.addEventListener) {
     semMovimento.addEventListener('change', function () {
+      if (semMovimento.matches) { desligar(); quadroParado(); } else ligar();
+    });
+  } else if (semMovimento.addListener) {          /* Safari antigo */
+    semMovimento.addListener(function () {
       if (semMovimento.matches) { desligar(); quadroParado(); } else ligar();
     });
   }

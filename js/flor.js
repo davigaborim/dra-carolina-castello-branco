@@ -13,6 +13,16 @@
 
    Desenho, e não geometria de verdade: tudo é caminho SVG montado aqui.
    Não há imagem nenhuma para baixar.
+
+   COMO O VISITANTE DESCOBRE QUE É ELE QUEM ABRE A FLOR:
+     - um arco de ouro fecha a volta em torno da flor conforme ele rola: é a
+       mesma barra de progresso que ele já entende, só que redonda e no
+       lugar onde a coisa acontece;
+     - com a flor ainda fechada aparece a dica "role para abrir", com a
+       mesma setinha da abertura do site — ela some no primeiro empurrão e
+       volta se ele subir de novo;
+     - a trilha embaixo do texto pinta os segmentos já vencidos, então dá
+       pra ver de relance que são cinco e em qual ele está.
    ========================================================================== */
 
 (function () {
@@ -30,6 +40,11 @@
 
   var NS = 'http://www.w3.org/2000/svg';
   var CX = 320, CY = 320;
+
+  /* raio e volta do anel de progresso — o mesmo do aro fino, que passa a
+     fazer o papel de trilho vazio embaixo dele */
+  var R_ARCO = 272;
+  var VOLTA = 2 * Math.PI * R_ARCO;
 
   /* Os três anéis. `giro` desloca o anel para as pétalas não se cobrirem;
      `atraso` faz o miolo abrir depois das pétalas de fora, como flor de
@@ -88,6 +103,16 @@
   halo.appendChild(el('stop', { offset: '100%', 'stop-color': '#DCC08A', 'stop-opacity': '0' }));
   defs.appendChild(halo);
 
+  /* o fio do progresso vai do rosa ao ouro: começa da cor das pétalas e
+     termina na cor do miolo, que é justamente a última coisa a abrir */
+  var fio = el('linearGradient', {
+    id: 'fioArco', gradientUnits: 'userSpaceOnUse',
+    x1: '48', y1: '48', x2: '592', y2: '592'
+  });
+  fio.appendChild(el('stop', { offset: '0%', 'stop-color': '#C77E92' }));
+  fio.appendChild(el('stop', { offset: '100%', 'stop-color': '#B08D57' }));
+  defs.appendChild(fio);
+
   svg.appendChild(defs);
 
   /* halo difuso atrás de tudo */
@@ -101,12 +126,24 @@
     stroke: 'rgba(154,160,168,.5)', 'stroke-width': '1',
     'stroke-dasharray': '2 13', 'stroke-linecap': 'round'
   });
+  /* O aro fino virou o trilho vazio do progresso. Mesma espessura do arco
+     de ouro que corre por cima: fio mais fino que o arco não lê como
+     "quanto falta", lê como enfeite — e aí o arco não promete nada. */
   var aroFino = el('circle', {
-    cx: CX, cy: CY, r: 272,
-    stroke: 'rgba(176,141,87,.28)', 'stroke-width': '1'
+    cx: CX, cy: CY, r: R_ARCO,
+    stroke: 'rgba(176,141,87,.20)', 'stroke-width': '3'
+  });
+  /* rotate(-90) faz a volta começar em cima, onde o olho espera */
+  var arco = el('circle', {
+    cx: CX, cy: CY, r: R_ARCO,
+    stroke: 'url(#fioArco)', 'stroke-width': '3', 'stroke-linecap': 'round',
+    'stroke-dasharray': VOLTA.toFixed(1),
+    'stroke-dashoffset': VOLTA.toFixed(1),
+    transform: 'rotate(-90 ' + CX + ' ' + CY + ')'
   });
   svg.appendChild(aro);
   svg.appendChild(aroFino);
+  svg.appendChild(arco);
 
   /* pétalas: de fora para dentro, para o miolo ficar por cima */
   var petalas = [];
@@ -152,6 +189,14 @@
   svg.appendChild(gMiolo);
 
   alvo.appendChild(svg);
+
+  /* A dica de rolagem: a MESMA setinha da abertura do site, para o visitante
+     reconhecer o gesto que já fez uma vez. Some no primeiro empurrão. */
+  var dica = document.createElement('span');
+  dica.className = 'flor__dica';
+  dica.setAttribute('aria-hidden', 'true');
+  dica.innerHTML = '<span class="flor__dica-seta"></span>Role para abrir';
+  alvo.appendChild(dica);
 
   /* ------------------------------------------------------------- desenhar */
 
@@ -201,7 +246,10 @@
     var giroAro = t * 26 + (tempo || 0) * 1.6;
     aro.setAttribute('transform', 'rotate(' + giroAro.toFixed(2) + ' ' + CX + ' ' + CY + ')');
     aro.setAttribute('opacity', (0.25 + 0.6 * t).toFixed(3));
-    aroFino.setAttribute('opacity', (0.15 + 0.5 * t).toFixed(3));
+
+    /* trilho sempre visível: é ele que promete que a volta tem fim */
+    aroFino.setAttribute('opacity', (0.8 + 0.2 * t).toFixed(3));
+    arco.setAttribute('stroke-dashoffset', (VOLTA * (1 - t)).toFixed(1));
 
     gHalo.setAttribute('opacity', (0.25 + 0.75 * t).toFixed(3));
   }
@@ -238,8 +286,19 @@
     for (var k = 0; k < N; k++) {
       fases[k].classList.toggle('is-ativa', k === i);
       botoes[k].classList.toggle('is-ativa', k === i);
+      /* segmentos já vencidos ficam pintados: dá o "2 de 5" de relance */
+      botoes[k].classList.toggle('is-passada', k < i);
       botoes[k].setAttribute('aria-current', k === i ? 'true' : 'false');
     }
+  }
+
+  /* A dica entra e sai com folga entre os dois limites, senão ela pisca no
+     meio de um empurrão pequeno. */
+  var dicaVisivel = null;
+  function mostrarDica(sim) {
+    if (sim === dicaVisivel) return;
+    dicaVisivel = sim;
+    alvo.classList.toggle('is-fechada', sim);
   }
 
   function percurso() {
@@ -278,10 +337,21 @@
 
   function quadro(agora) {
     pedido = 0;
-    if (ultimo) relogio += Math.min(0.05, (agora - ultimo) / 1000);
+    var bruto = ultimo ? (agora - ultimo) / 1000 : 0;
     ultimo = agora;
 
-    tAtual += (tAlvo - tAtual) * 0.12;
+    /* O relógio do aro é limitado: depois de uma parada longa ele não pode
+       dar um salto de meia volta. */
+    relogio += Math.min(0.05, bruto);
+
+    /* O assentamento, ao contrário, usa o tempo REAL do quadro. Era aqui o
+       segundo jeito de a flor parecer travada: com o passo fixo por quadro
+       (o antigo `* 0.12`), num navegador que só entrega 5 quadros por
+       segundo a flor andava quatro vezes mais devagar que a rolagem e ficava
+       sempre atrás do dedo — e nunca chegava a abrir de todo. Por tempo, ela
+       chega no mesmo lugar em 60Hz, em 120Hz e num navegador engasgado. */
+    tAtual += (tAlvo - tAtual) * (bruto ? 1 - Math.exp(-Math.min(0.3, bruto) * 8) : 0.12);
+    if (Math.abs(tAlvo - tAtual) < 0.0015) tAtual = tAlvo;   /* fecha a volta */
     desenhar(tAtual, relogio, ativa);
 
     /* segue enquanto ainda estiver assentando ou enquanto o aro gira */
@@ -289,26 +359,35 @@
   }
 
   function pedir() { if (!pedido) pedido = requestAnimationFrame(quadro); }
+  function parar() { if (pedido) { cancelAnimationFrame(pedido); pedido = 0; } }
 
   function aoRolar() {
     tAlvo = progresso();
     marcar(Math.min(N - 1, Math.floor(tAlvo * N)));
+    mostrarDica(dicaVisivel === false ? tAlvo < 0.012 : tAlvo < 0.05);
     if (visivel) pedir();
   }
 
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function (e) {
       visivel = e[0].isIntersecting;
-      if (visivel) { ultimo = 0; pedir(); }
-      else if (pedido) { cancelAnimationFrame(pedido); pedido = 0; }
+      if (visivel) { ultimo = 0; pedir(); } else parar();
     }, { rootMargin: '10% 0px' }).observe(cena);
   } else {
     visivel = true; pedir();
   }
 
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden) { if (pedido) { cancelAnimationFrame(pedido); pedido = 0; } }
+    if (document.hidden) parar();
     else if (visivel) { ultimo = 0; pedir(); }
+  });
+
+  /* Mesma história da seda: voltar pelo botão "voltar" devolve a página do
+     bfcache sem visibilitychange em alguns navegadores, e a flor ficava
+     parada no quadro em que tinha sido deixada. */
+  window.addEventListener('pageshow', function () {
+    if (visivel) { ultimo = 0; pedir(); }
+    aoRolar();
   });
 
   window.addEventListener('scroll', aoRolar, { passive: true });
