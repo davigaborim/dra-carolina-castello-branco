@@ -10,7 +10,8 @@ ver localmente, abra o `index.html` no navegador — não precisa de servidor.
 — é a versão de aprovação, servida pelo GitHub Pages a partir da branch `main`.
 O endereço final continua sendo `dracarolinacastellobranco.com.br`.
 
-**Site inteiro: 326 KB.** Para comparação, só as imagens do site da Clínica
+**Site inteiro: 371 KB** (era 326 KB até as fotos novas da clínica e a marca em
+vetor entrarem, em 02/09). Para comparação, só as imagens do site da Clínica
 Castello Branco somam 6,6 MB.
 
 ---
@@ -29,36 +30,57 @@ dra-carolina/
 ├── js/
 │   ├── main.js         cabeçalho, menu, revelação, parallax, acordeão
 │   ├── flor.js         A FLOR — a assinatura do site
-│   └── seda.js         o tecido em WebGL das duas faixas escuras
-└── images/             7 arquivos, 200 KB no total
+│   └── seda.js         o tecido em WebGL — duas paletas, ver abaixo
+├── images/             7 arquivos, 240 KB no total
+└── originais/          o que a cliente mandou; NÃO é servido, é só fonte
 ```
 
 ### As imagens
 
-Todas vieram do site antigo e foram reprocessadas: redimensionadas para o
-tamanho de exibição e convertidas para **WebP** (as fotos) — de ~500 KB para
-200 KB, sem perda visível.
+As fotos são redimensionadas para o tamanho de exibição e convertidas para
+**WebP**; a marca e a logo são **vetor**.
 
 | Arquivo | O que é | Origem |
 |---|---|---|
 | `retrato-carolina.webp` | retrato no consultório | foto do site antigo |
-| `clinica-fachada.webp` | fachada ao entardecer | idem |
-| `clinica-lounge.webp` | sala de espera | idem |
-| `marca-rosa.png` / `marca-clara.png` | **o monograma sozinho**, em rosa e em pérola | extraído do ícone do site antigo |
-| `logo-clara.png` | a logo completa, em pérola | logo original |
+| `clinica-fachada.webp` | fachada com o letreiro, 720×960 | foto nova, 08/2026 |
+| `clinica-lounge.webp` | sala de espera, 900×675 | foto nova, 08/2026 |
+| `marca.svg` | **a silhueta sozinha**, em `#9E4F66` | vetor de `originais/logo-horizontal.pdf` |
+| `logo.svg` | a marca completa com o nome, em `#FBF1F0` | idem |
+| `apple-touch-icon.png` | ícone de 180×180 para iOS | gerado do `marca.svg` |
 | `og.jpg` | miniatura de compartilhamento, 1200×630 | montada aqui |
 
-> [!note] O monograma foi recuperado, não redesenhado
-> No site antigo o monograma (a silhueta feminina em linha) só existia como
-> JPEG creme sobre fundo verde-sage, colado no fundo. Ele foi separado por
-> limiar de luminância, virou PNG transparente e agora pode ser pintado de
-> qualquer cor. É por isso que ele aparece rosa no cabeçalho e pérola na
-> abertura, sendo o mesmo arquivo de origem.
+> [!note] A marca virou vetor em 02/09
+> Até então o monograma era um PNG recuperado do site antigo por limiar de
+> luminância — e trazia um arco preto solto embaixo, resto do recorte. A
+> cliente mandou o PDF da logo, que é **vetor puro** (nenhuma imagem
+> embutida): dele saíram `marca.svg` (só a silhueta, recortada por `viewBox`)
+> e `logo.svg` (a marca inteira). Foi o que permitiu aumentar a marca na
+> abertura sem borrar.
 
-> [!warning] A logo original só existe em branco
-> `logo-clara.png` só funciona sobre fundo escuro. Por isso o cabeçalho usa o
-> monograma + o nome em tipografia, e não a logo. Se a designer dela mandar
-> uma versão em tinta escura, dá para usar a logo no cabeçalho claro também.
+> [!warning] A cor está DENTRO do SVG, não no CSS
+> Os dois arquivos são usados em `<img>`, e `<img>` não herda `currentColor` —
+> um `fill="currentColor"` renderizaria **preto**. Por isso cada arquivo tem a
+> cor fixa: `marca.svg` em rosa (vai sobre papel claro), `logo.svg` em creme
+> (vai no rodapé escuro). Para mudar a cor, é um `sed` no próprio arquivo.
+
+### As duas paletas da seda
+
+`js/seda.js` desenha o mesmo tecido em dois climas, escolhidos por
+`data-seda-tema` na seção:
+
+| Seção | Tema | Como fica |
+|---|---|---|
+| `.abertura` | `claro` | rosa de papel; a vinheta **clareia** para o papel e o fio de ouro entra fraco (0.18) |
+| `.contato` | `escuro` (padrão) | vinho, como sempre foi |
+
+O véu que protege a leitura acompanha, pela variável `--seda-veu`: escuro por
+padrão, claro na abertura.
+
+> [!warning] No claro, o fio de ouro passa a ser textura
+> Ele era brilho sobre o vinho. Sobre o papel vira veio de mármore, e acima de
+> `fio * 0.2` a abertura ganha uma textura que ninguém pediu. Se for mexer,
+> mexa para baixo.
 
 ---
 
@@ -185,6 +207,7 @@ Liga em qualquer seção com o atributo `data-seda`. Ajustes opcionais:
 | `data-seda-escala` | `1.15` | zoom: maior = dobra mais fina |
 | `data-seda-semente` | `41` | muda o desenho sem mudar o resto |
 | `data-seda-resolucao` | `0.55` | fração da tela em que ele desenha |
+| `data-seda-tema` | `escuro` | `claro` troca a paleta inteira — ver "As duas paletas da seda" |
 
 Custo: o canvas é renderizado a **55% do tamanho real** e o `devicePixelRatio`
 é limitado a 2 — seda é gradiente macio, ninguém vê a diferença. Um
@@ -212,6 +235,26 @@ mostrando o fundo parado):
    travado. Um vigia conta os quadros lentos e **baixa a resolução**; se ainda
    assim não der, para num quadro parado.
 
+### Os serviços — `#servicos`
+
+Os oito procedimentos vieram da página `/parto` do site da **Clínica Castello
+Branco**, onde ela também atende: mesmo texto, mesma ordem, sem reescrita. A
+fonte é `src/data/site.ts` daquele repositório, no array `servicosObstetricia`.
+
+Duas decisões que valem registrar:
+
+- **Sem foto.** No site da clínica cada cartão tem imagem; oito imagens aqui
+  seriam ~2 MB num site de 371 KB, e o valor da lista está no texto, não em
+  foto de tubo de coleta. Os cartões são tipográficos, com o fio de ouro à
+  esquerda dando o alinhamento.
+- **Seção, não subpágina.** É a lista de serviços dela — o conteúdo com mais
+  valor comercial da página. Numa subpágina, quase ninguém chegaria.
+
+> [!warning] O texto tem dois donos agora
+> Se a clínica mudar a descrição de um serviço no `/parto`, este site **não
+> muda sozinho** — é cópia, não inclusão. Ao revisar um dos dois, revise o
+> outro. O link no fim da seção aponta para lá.
+
 ### O portal e o arco
 
 A abertura **não é hero de duas colunas.** É um arco centralizado — um portal —
@@ -236,6 +279,26 @@ sobreposição que tira a seção do lugar-comum "foto de um lado, texto do outr
 Vinho profundo, rosa e ouro; a **prata só aparece como fio** (o aro da flor, os
 fios do portal, o fim do degradê da barra de progresso). Metal em área grande
 briga com o outro metal; em fio, os dois convivem.
+
+> [!warning] A abertura é clara desde 02/09
+> A doutora achou o herói vinho "muito forte e escuro". A **forma** ficou igual
+> — arco, dois fios, seda atrás, marca no topo — e só o peso saiu: o fundo
+> virou rosa de papel (`#FCF3F2` → `#F0D6DB`) e quem carrega o contraste agora
+> é a tinta.
+>
+> Isso arrastou o cabeçalho junto: o `.topo` **nasce com tinta escura**, e o
+> `is-preso` só acrescenta o fundo e a sombra. Não existe mais o estado "sobre
+> a faixa escura". Se algum dia a abertura voltar a ser escura, é preciso
+> devolver as regras de texto em pérola que foram removidas de `.marca__nome`,
+> `.nav a` e `.hamburguer span`.
+>
+> O rosa mais claro não aguenta texto em pérola: pérola sobre `#B98494` dá
+> ~3,0:1, abaixo dos 4,5:1. Ou o fundo é escuro com tinta clara, ou claro com
+> tinta escura — o meio-termo é justamente o que não fecha.
+
+O **contato continua escuro**, e é de propósito: a página abre clara, atravessa
+os papéis creme e blush e fecha no vinho, com o rodapé junto. A faixa escura no
+fim é o contraponto que faz o botão do WhatsApp saltar.
 
 O `--rosa` (#C77E92) e o `--ouro` (#B08D57) são **exatamente os mesmos tokens do
 site da Clínica Castello Branco**. Ela atende lá, e os dois sites precisam
@@ -273,6 +336,9 @@ conversa de manutenção. Sem ele, a reunião vira opinião.
    `css/`, `js/` e `images/` soltos, **não a pasta inteira**. Se a pasta for
    junto, o site cai em `seudominio.com/dra-carolina/` e os caminhos do
    `404.html`, que começam na raiz, quebram.
+3. **`originais/` não vai.** É a pasta de fonte — os PDFs da logo e as fotos
+   como vieram da cliente, meio mega que ninguém baixa. Fica no repositório
+   para a marca não se perder de novo, mas não no servidor.
 
 > [!danger] O `.htaccess` começa com ponto
 > Programa de FTP costuma **esconder** arquivos que começam com ponto. Se ele

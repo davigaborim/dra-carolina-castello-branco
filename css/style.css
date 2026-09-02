@@ -137,6 +137,9 @@ strong{ font-weight:500; color:var(--texto-forte); }
 
 .secao{ padding-block:var(--s-secao); position:relative; }
 .secao--blush{ background:var(--blush); }
+/* terceiro papel: separa Serviços do blush que vem antes e do pérola que vem
+   depois, sem precisar de mais uma faixa de cor forte */
+.secao--creme{ background:var(--creme); }
 
 .pular{
   position:absolute; left:-9999px; top:10px; z-index:200;
@@ -173,18 +176,19 @@ strong{ font-weight:500; color:var(--texto-forte); }
 .marca{ display:inline-flex; align-items:center; gap:11px; text-decoration:none; flex:0 0 auto; }
 .marca__mono{ width:auto; height:34px; opacity:.9; transition:transform .5s var(--ease); }
 .marca:hover .marca__mono{ transform:translateY(-2px) rotate(-3deg); }
+/* Tinta escura desde o topo: a abertura é clara agora, então não existe mais
+   o estado "sobre a faixa escura" que pedia texto em pérola. O `is-preso` só
+   acrescenta o fundo e a sombra. */
 .marca__nome{
   font-family:var(--display); font-size:1.02rem; line-height:1.12;
-  letter-spacing:.02em; color:var(--perola);
+  letter-spacing:.02em; color:var(--texto-forte);
 }
-.marca__nome em{ color:var(--rosa-claro); }
-.topo.is-preso .marca__nome{ color:var(--texto-forte); }
-.topo.is-preso .marca__nome em{ color:var(--rosa-fundo); }
+.marca__nome em{ color:var(--rosa-fundo); }
 
 .nav{ margin-left:auto; display:flex; gap:clamp(12px,2vw,26px); }
 .nav a{
   position:relative; text-decoration:none; font-size:.83rem; font-weight:400;
-  letter-spacing:.03em; color:rgba(255,252,249,.80); padding-block:6px;
+  letter-spacing:.03em; color:var(--texto); padding-block:6px;
   transition:color .3s ease;
 }
 .nav a::after{
@@ -192,10 +196,8 @@ strong{ font-weight:500; color:var(--texto-forte); }
   background:currentColor; transform:scaleX(0); transform-origin:0 50%;
   transition:transform .4s var(--ease);
 }
-.nav a:hover,.nav a.is-atual{ color:var(--rosa-claro); }
+.nav a:hover,.nav a.is-atual{ color:var(--rosa-fundo); }
 .nav a:hover::after,.nav a.is-atual::after{ transform:scaleX(1); }
-.topo.is-preso .nav a{ color:var(--texto); }
-.topo.is-preso .nav a:hover,.topo.is-preso .nav a.is-atual{ color:var(--rosa-fundo); }
 
 .topo__cta{ flex:0 0 auto; }
 
@@ -205,10 +207,9 @@ strong{ font-weight:500; color:var(--texto-forte); }
   flex-direction:column; justify-content:center; align-items:center; gap:5px;
 }
 .hamburguer span{
-  display:block; width:22px; height:1px; background:var(--perola);
+  display:block; width:22px; height:1px; background:var(--texto-forte);
   transition:transform .35s var(--ease),opacity .25s ease,background .3s ease;
 }
-.topo.is-preso .hamburguer span{ background:var(--texto-forte); }
 .hamburguer[aria-expanded="true"] span:nth-child(1){ transform:translateY(6px) rotate(45deg); }
 .hamburguer[aria-expanded="true"] span:nth-child(2){ opacity:0; }
 .hamburguer[aria-expanded="true"] span:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
@@ -279,8 +280,9 @@ strong{ font-weight:500; color:var(--texto-forte); }
 .btn--solido{ background:var(--rosa-fundo); color:var(--perola); box-shadow:0 10px 26px -14px rgba(158,79,102,.9); }
 .btn--solido:hover{ background:#8B4459; box-shadow:0 16px 34px -16px rgba(158,79,102,1); }
 
-.btn--vazado{ border-color:rgba(220,192,138,.5); color:var(--perola); }
-.btn--vazado:hover{ border-color:var(--ouro-claro); background:rgba(220,192,138,.10); }
+/* Só a abertura usa este, e a abertura é clara: tinta escura, fio de ouro. */
+.btn--vazado{ border-color:rgba(176,141,87,.55); color:var(--texto-forte); }
+.btn--vazado:hover{ border-color:var(--ouro-fundo); background:rgba(176,141,87,.09); }
 
 .btn--fantasma{ border-color:rgba(255,252,249,.28); color:var(--perola); }
 .btn--fantasma:hover{ border-color:rgba(255,252,249,.6); background:rgba(255,252,249,.07); }
@@ -326,46 +328,55 @@ strong{ font-weight:500; color:var(--texto-forte); }
   min-height:100svh;
   display:grid; align-items:center;
   padding-block:calc(var(--topo-h) + 40px) 96px;
+  /* Rosa de papel, não vinho. A forma é a mesma de antes — o arco, os dois
+     fios, a seda correndo atrás — mas o peso saiu: quem carrega o contraste
+     agora é a tinta, não o fundo. */
   background:
-    radial-gradient(120% 90% at 50% 0%,#3B1D2B 0%,transparent 62%),
-    linear-gradient(180deg,#2A1420 0%,#1B0C14 100%);
-  color:var(--perola);
+    radial-gradient(120% 90% at 50% 0%,#FFFAF9 0%,transparent 60%),
+    linear-gradient(180deg,#FCF3F2 0%,#F0D6DB 100%);
+  color:var(--texto);
   overflow:hidden;
+  /* o véu da seda, invertido: neste aqui ele clareia em vez de escurecer */
+  --seda-veu:radial-gradient(120% 80% at 50% 45%,
+              rgba(255,250,249,.42) 0%,rgba(255,250,249,.70) 68%,rgba(255,250,249,.84) 100%);
 }
 
 .portal{
   position:relative;
   max-width:760px; margin-inline:auto; text-align:center;
   padding:clamp(74px,15vh,132px) clamp(22px,6vw,68px) clamp(40px,6vh,64px);
-  border:1px solid rgba(220,192,138,.34);
+  border:1px solid rgba(176,141,87,.42);
   border-bottom:0;
   border-radius:var(--arco);
 }
-/* segundo fio, em prata, por dentro: é o que dá o ar de moldura boa */
+/* segundo fio por dentro: é o que dá o ar de moldura boa. Era prata sobre o
+   vinho; sobre o papel a prata some, então quem faz o fio agora é o rosa. */
 .portal::before{
   content:""; position:absolute; inset:11px 11px 0;
-  border:1px solid rgba(200,202,208,.14); border-bottom:0;
+  border:1px solid rgba(158,79,102,.16); border-bottom:0;
   border-radius:var(--arco); pointer-events:none;
 }
 
+/* A marca cresceu — pedido da doutora — e virou vetor, então cresce sem
+   borrar. Ver images/marca.svg. */
 .portal__mono{
-  width:auto; height:clamp(52px,8vh,72px); margin:0 auto 22px; opacity:.92;
+  width:auto; height:clamp(84px,13vh,132px); margin:0 auto 26px;
 }
 
 .portal__titulo{
   font-size:clamp(2.6rem,7.2vw,4.9rem);
-  font-weight:300; line-height:1.02; color:var(--perola);
+  font-weight:300; line-height:1.02; color:var(--vinho);
 }
 .portal__titulo em{
   display:block; margin-top:.14em; font-weight:300;
-  background:linear-gradient(100deg,var(--ouro-claro) 0%,#F4E3C4 32%,var(--rosa-claro) 68%,var(--ouro-claro) 100%);
+  background:linear-gradient(100deg,var(--rosa-fundo) 0%,#8E4E62 30%,var(--ouro-fundo) 72%,var(--rosa-fundo) 100%);
   -webkit-background-clip:text; background-clip:text;
   -webkit-text-fill-color:transparent; color:transparent;
 }
 
 .portal__linha{
   max-width:44ch; margin-inline:auto;
-  color:rgba(255,252,249,.76); font-size:1.01rem;
+  color:var(--texto); font-size:1.01rem;
 }
 
 .portal__acoes{ margin-top:34px; display:flex; flex-wrap:wrap; gap:14px; justify-content:center; }
@@ -373,10 +384,10 @@ strong{ font-weight:500; color:var(--texto-forte); }
 /* seta de descer */
 .descer{
   position:absolute; left:50%; bottom:26px; translate:-50% 0; z-index:2;
-  width:26px; height:44px; border:1px solid rgba(220,192,138,.4); border-radius:999px;
+  width:26px; height:44px; border:1px solid rgba(176,141,87,.45); border-radius:999px;
   display:grid; place-items:start center; padding-top:9px;
 }
-.descer span{ width:2px; height:7px; border-radius:2px; background:var(--ouro-claro); animation:descer 1.9s var(--ease) infinite; }
+.descer span{ width:2px; height:7px; border-radius:2px; background:var(--ouro-fundo); animation:descer 1.9s var(--ease) infinite; }
 @keyframes descer{ 0%{opacity:0;transform:translateY(-3px)} 35%{opacity:1} 100%{opacity:0;transform:translateY(15px)} }
 
 @media (max-width:620px){
@@ -596,6 +607,40 @@ strong{ font-weight:500; color:var(--texto-forte); }
 .carta h3{ font-size:clamp(1.7rem,3vw,2.3rem); margin-bottom:14px; }
 .carta p{ color:var(--texto-fraco); margin-bottom:26px; }
 
+/* --------------------------------------------------------------------------
+   8b. Serviços — os oito procedimentos
+   Mora aqui e não numa seção nova para não renumerar o sumário do arquivo:
+   são as duas frentes da seção 8 abertas em detalhe. Cartão mais leve que a
+   `.carta` (sem inclinação, sem brilho): são oito, e oito cartões pesados
+   viram parede. O fio de ouro à esquerda é o que dá o alinhamento da lista.
+   -------------------------------------------------------------------------- */
+
+.servicos{
+  list-style:none; display:grid; gap:clamp(14px,2vw,24px);
+  grid-template-columns:repeat(auto-fit,minmax(258px,1fr));
+}
+.servico{
+  position:relative;
+  background:var(--perola);
+  border:1px solid rgba(176,141,87,.20);
+  border-left:2px solid rgba(176,141,87,.42);
+  border-radius:0 var(--raio) var(--raio) 0;
+  padding:clamp(24px,3vw,32px);
+  transition:border-color .4s ease,box-shadow .45s var(--ease),transform .45s var(--ease);
+}
+.servico:hover{
+  border-color:rgba(176,141,87,.34); border-left-color:var(--rosa-fundo);
+  box-shadow:var(--sombra); transform:translateY(-3px);
+}
+.servico__num{
+  font-family:var(--display); font-size:1.5rem; line-height:1;
+  color:rgba(176,141,87,.42); display:block; margin-bottom:8px;
+}
+.servico h3{ font-size:1.24rem; font-weight:400; color:var(--texto-forte); margin-bottom:9px; }
+.servico p{ color:var(--texto-fraco); font-size:.94rem; }
+
+.servicos__pe{ margin-top:clamp(30px,4vw,44px); text-align:center; }
+
 /* ==========================================================================
    9. A CONSULTA
    ========================================================================== */
@@ -676,6 +721,7 @@ strong{ font-weight:500; color:var(--texto-forte); }
 .clinica__texto p + p{ margin-top:16px; }
 .clinica__texto .titulo{ margin-bottom:24px; }
 .clinica__texto > p{ color:var(--texto-fraco); }
+.clinica__texto .link{ margin-top:26px; }
 
 /* Par desencontrado: a fachada em pé, o lounge deitado e descido. O
    `aspect-ratio` em cada figure é o que dá altura — sem ele as duas ficavam
@@ -735,7 +781,10 @@ strong{ font-weight:500; color:var(--texto-forte); }
 
 .rodape{ background:var(--vinho-fundo); color:rgba(255,252,249,.7); padding-block:clamp(50px,7vw,80px) 34px; }
 .rodape__in{ display:flex; flex-wrap:wrap; gap:44px; justify-content:space-between; }
-.rodape__marca img{ width:auto; height:56px; opacity:.9; margin-bottom:16px; }
+/* Um pouco maior e em opacidade cheia desde que virou vetor: o traço da marca
+   é fino de origem, e a linha "ginecologia e obstetrícia" some antes de tudo.
+   Ver images/logo.svg. */
+.rodape__marca img{ width:auto; height:74px; margin-bottom:18px; }
 .rodape__marca p{ font-family:var(--display); font-style:italic; font-size:1.15rem; color:var(--rosa-claro); }
 
 .rodape__links{ display:flex; flex-wrap:wrap; gap:44px; }
@@ -791,9 +840,11 @@ strong{ font-weight:500; color:var(--texto-forte); }
   width:100%; height:100%; display:block; pointer-events:none;
 }
 [data-seda]{ position:relative; isolation:isolate; }
+/* O véu é o que protege a leitura. Escuro por padrão, que é o do contato; a
+   abertura sobrescreve `--seda-veu` com a versão clara dela. */
 [data-seda]::after{
   content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
-  background:radial-gradient(120% 80% at 50% 45%,rgba(27,12,20,.34) 0%,rgba(27,12,20,.72) 70%,rgba(27,12,20,.86) 100%);
+  background:var(--seda-veu,radial-gradient(120% 80% at 50% 45%,rgba(27,12,20,.34) 0%,rgba(27,12,20,.72) 70%,rgba(27,12,20,.86) 100%));
 }
 
 /* ==========================================================================

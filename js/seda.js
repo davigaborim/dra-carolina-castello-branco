@@ -114,29 +114,68 @@
     '                fbm(p + 3.4 * q + vec2(8.3, 2.8) - 0.11 * t));',
     '  float v = fbm(p + 3.2 * r);',
     '',
-    '  vec3 fundo  = vec3(0.106, 0.047, 0.078);',   /* #1B0C14 */
-    '  vec3 vinho  = vec3(0.231, 0.114, 0.169);',   /* #3B1D2B */
-    '  vec3 rosaEs = vec3(0.620, 0.310, 0.400);',   /* #9E4F66 */
-    '  vec3 rosa   = vec3(0.780, 0.494, 0.573);',   /* #C77E92 */
-    '  vec3 ouro   = vec3(0.863, 0.753, 0.541);',   /* #DCC08A */
-    '',
-    '  vec3 cor = mix(fundo, vinho, smoothstep(0.14, 0.58, v));',
-    '  cor = mix(cor, rosaEs, smoothstep(0.46, 0.88, v) * 0.72);',
-    '  cor = mix(cor, rosa,   smoothstep(0.74, 1.02, v) * 0.42);',
-    '',
-    /* o brilho da seda: cristas MUITO finas nas dobras, senão vira glitter */
-    '  float fio = pow(abs(sin(v * 9.0 + length(r) * 2.6)), 24.0);',
-    '  cor += ouro * fio * 0.55;',
-    '',
-    '  float d = length(p - vec2(u_semente * 0.37, u_semente * 0.19 + u_deriva));',
-    '  cor *= 0.42 + 0.66 * smoothstep(1.45, 0.05, d);',
+    ''
+  ];
+
+  /* Daqui para baixo é só cor, e são duas. A abertura passou a ser clara —
+     rosa de papel, não vinho — e o contato continua escuro. A dobra, o fio de
+     ouro e o grão são os mesmos; troca a paleta com data-seda-tema="claro". */
+  var PALETAS = {
+    escuro: [
+      '  vec3 fundo  = vec3(0.106, 0.047, 0.078);',   /* #1B0C14 */
+      '  vec3 vinho  = vec3(0.231, 0.114, 0.169);',   /* #3B1D2B */
+      '  vec3 rosaEs = vec3(0.620, 0.310, 0.400);',   /* #9E4F66 */
+      '  vec3 rosa   = vec3(0.780, 0.494, 0.573);',   /* #C77E92 */
+      '  vec3 ouro   = vec3(0.863, 0.753, 0.541);',   /* #DCC08A */
+      '',
+      '  vec3 cor = mix(fundo, vinho, smoothstep(0.14, 0.58, v));',
+      '  cor = mix(cor, rosaEs, smoothstep(0.46, 0.88, v) * 0.72);',
+      '  cor = mix(cor, rosa,   smoothstep(0.74, 1.02, v) * 0.42);',
+      '',
+      /* o brilho da seda: cristas MUITO finas nas dobras, senão vira glitter */
+      '  float fio = pow(abs(sin(v * 9.0 + length(r) * 2.6)), 24.0);',
+      '  cor += ouro * fio * 0.55;',
+      '',
+      '  float d = length(p - vec2(u_semente * 0.37, u_semente * 0.19 + u_deriva));',
+      '  cor *= 0.42 + 0.66 * smoothstep(1.45, 0.05, d);'
+    ],
+    claro: [
+      '  vec3 papel  = vec3(0.988, 0.953, 0.949);',   /* #FCF3F2 */
+      '  vec3 blush  = vec3(0.941, 0.839, 0.859);',   /* #F0D6DB */
+      '  vec3 rosa   = vec3(0.867, 0.686, 0.729);',   /* #DDAFBA */
+      '  vec3 rosaEs = vec3(0.780, 0.494, 0.573);',   /* #C77E92 */
+      '  vec3 ouro   = vec3(0.804, 0.667, 0.427);',   /* #CDAA6D */
+      '',
+      '  vec3 cor = mix(papel, blush, smoothstep(0.14, 0.58, v));',
+      '  cor = mix(cor, rosa,   smoothstep(0.46, 0.88, v) * 0.42);',
+      '  cor = mix(cor, rosaEs, smoothstep(0.80, 1.06, v) * 0.14);',
+      '',
+      /* No claro o fio se MISTURA ao ouro; somar estouraria para o branco. E
+         entra fraco: no escuro ele era brilho sobre o vinho, aqui vira veio
+         de mármore — passando de ~0.2 a abertura ganha textura, que é
+         exatamente o que ninguém pediu. */
+      '  float fio = pow(abs(sin(v * 9.0 + length(r) * 2.6)), 24.0);',
+      '  cor = mix(cor, ouro, fio * 0.18);',
+      '',
+      '  float d = length(p - vec2(u_semente * 0.37, u_semente * 0.19 + u_deriva));',
+      /* e a vinheta CLAREIA para o papel: multiplicar escureceria a borda e
+         traria de volta exatamente o peso que era para sair daqui */
+      '  cor = mix(papel, cor, 0.34 + 0.66 * smoothstep(1.45, 0.05, d));'
+    ]
+  };
+
+  var FECHO = [
     '',
     /* grão: sem ele o degradê faz faixas em tela de 8 bits */
     '  cor += (hash21(gl_FragCoord.xy) - 0.5) * 0.024;',
     '',
     '  gl_FragColor = vec4(max(cor, 0.0), 1.0);',
     '}'
-  ].join('\n');
+  ];
+
+  function fragmento(tema) {
+    return FRAGMENT.concat(PALETAS[tema] || PALETAS.escuro, FECHO).join('\n');
+  }
 
   var OPCOES = {
     antialias: false, alpha: false, depth: false, stencil: false,
@@ -161,6 +200,7 @@
 
     var gl = null, uCena = null, uPar = null;
     var perdido = false, morto = false, volta = 0;
+    var tema = alvo.getAttribute('data-seda-tema') === 'claro' ? 'claro' : 'escuro';
 
     try {
       gl = canvas.getContext('webgl', OPCOES) || canvas.getContext('experimental-webgl', OPCOES);
@@ -171,7 +211,7 @@
        Perder o contexto apaga tudo isso, então precisa ser remontável. */
     function montarPrograma() {
       var vs = compilar(gl, gl.VERTEX_SHADER, VERTEX);
-      var fs = compilar(gl, gl.FRAGMENT_SHADER, FRAGMENT);
+      var fs = compilar(gl, gl.FRAGMENT_SHADER, fragmento(tema));
       if (!vs || !fs) return false;
 
       var prog = gl.createProgram();
