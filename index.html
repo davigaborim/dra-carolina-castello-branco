@@ -249,70 +249,211 @@
 </section>
 
 <!-- ============================ SERVIÇOS ============================
-     Os oito procedimentos vieram da página /parto do site da Clínica Castello
-     Branco, onde ela também atende: mesmo texto, mesma ordem. Aqui entram sem
-     foto — oito imagens seriam 2 MB e o valor da lista está no que ela diz.
-     Papel creme para não encostar no blush da seção anterior. -->
+     Espelho da seção "Serviços" da página /parto do site da Clínica Castello
+     Branco: mesmo texto, mesmas fotos, mesmo cartão. Ela aprovou aquele, então
+     este não inventa nada. O componente de lá é `ProcedimentoCard.astro`, em
+     Astro + Tailwind; aqui é o mesmo desenho em CSS puro — os dois sites usam
+     os mesmos valores de cor, só com nomes diferentes.
+
+     O cartão é um `<details>`: o clique abre o botão de agendar sem uma linha
+     de JS, já com teclado e leitor de tela funcionando. -->
 <section class="secao secao--creme" id="servicos">
   <div class="wrap">
-    <header class="cab cab--centro">
+    <header class="cab">
       <p class="rotulo reveal">O que ofereço</p>
-      <h2 class="titulo reveal" style="--d:1">Serviços,<br><em>um a um.</em></h2>
-      <p class="cab__texto reveal" style="--d:2">
+      <h2 class="titulo reveal" style="--d:1">Serviços.</h2>
+      <span class="fio-orn fio-orn--esq reveal" style="--d:2" aria-hidden="true"><i></i></span>
+      <p class="cab__texto cab__texto--esq reveal" style="--d:3">
         Cada procedimento explicado — para você chegar à consulta sabendo o que
         esperar.
       </p>
     </header>
 
-    <ul class="servicos">
-      <li class="servico reveal">
-        <span class="servico__num" aria-hidden="true">01</span>
-        <h3>Consultas</h3>
-        <p>Primeira consulta ou retorno: tempo para ouvir sua queixa, examinar e explicar os próximos passos.</p>
-      </li>
-      <li class="servico reveal" style="--d:1">
-        <span class="servico__num" aria-hidden="true">02</span>
-        <h3>Prevenção</h3>
-        <p>O acompanhamento anual da saúde da mulher, com exame preventivo e orientação.</p>
-      </li>
-      <li class="servico reveal" style="--d:2">
-        <span class="servico__num" aria-hidden="true">03</span>
-        <h3>Exames</h3>
-        <p>Solicitação e leitura dos exames de rotina — preventivo, laboratoriais e de imagem.</p>
-      </li>
-      <li class="servico reveal" style="--d:3">
-        <span class="servico__num" aria-hidden="true">04</span>
-        <h3>Contracepção</h3>
-        <p>Escolha do método que combina com o seu corpo e a sua rotina, com explicação de cada opção.</p>
-      </li>
-      <li class="servico reveal">
-        <span class="servico__num" aria-hidden="true">05</span>
-        <h3>Aplicação de DIU e Implanon</h3>
-        <p>Métodos contraceptivos de longa duração — DIU hormonal ou de cobre e o implante subcutâneo, colocados em consultório com orientação antes e depois.</p>
-      </li>
-      <li class="servico reveal" style="--d:1">
-        <span class="servico__num" aria-hidden="true">06</span>
-        <h3>Pré-natal e pós-parto</h3>
-        <p>Acompanhamento da gestação do começo ao fim e o retorno depois do parto — para a mãe, não só para o bebê.</p>
-      </li>
-      <li class="servico reveal" style="--d:2">
-        <span class="servico__num" aria-hidden="true">07</span>
-        <h3>Terapia hormonal</h3>
-        <p>Reposição e ajuste hormonal conduzidos caso a caso, do climatério a outras indicações.</p>
-      </li>
-      <li class="servico reveal" style="--d:3">
-        <span class="servico__num" aria-hidden="true">08</span>
-        <h3>Saúde sexual</h3>
-        <p>Espaço para falar de desejo, dor, prevenção e o que mais incomodar — uma vida sexual ativa e saudável, com escuta humanizada e sem constrangimento.</p>
-      </li>
-    </ul>
+    <div class="procs">
+      <article class="proc reveal">
+        <details>
+          <summary>
+            <div class="proc__topo">
+              <div class="proc__foto">
+                <img src="images/servicos/consultas.webp" alt="Médica conversando com uma paciente em consultório claro" width="800" height="533" loading="lazy">
+              </div>
+              <span class="proc__selo" aria-hidden="true"><i>01</i></span>
+            </div>
+            <div class="proc__corpo">
+              <h3>Consultas</h3>
+              <p>Primeira consulta ou retorno: tempo para ouvir sua queixa, examinar e explicar os próximos passos.</p>
+              <span class="proc__dica">Agendar
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+          </summary>
+          <div class="proc__acao">
+            <a class="proc__botao" href="https://wa.me/5567984673592?text=Ol%C3%A1%2C%20Dra.%20Carolina!%20Gostaria%20de%20agendar%20Consultas." target="_blank" rel="noopener" data-zap>Agendar serviço</a>
+          </div>
+        </details>
+      </article>
 
-    <p class="servicos__pe reveal">
-      <a class="link" href="https://clinicacastellobrancocg.com.br/parto/" target="_blank" rel="noopener">
-        Ver estes serviços no site da clínica
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m0 0-5-5m5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-    </p>
+      <article class="proc reveal" style="--d:1">
+        <details>
+          <summary>
+            <div class="proc__topo">
+              <div class="proc__foto">
+                <img src="images/servicos/prevencao.webp" alt="Médica orientando uma paciente na sala de exames" width="800" height="533" loading="lazy">
+              </div>
+              <span class="proc__selo" aria-hidden="true"><i>02</i></span>
+            </div>
+            <div class="proc__corpo">
+              <h3>Prevenção</h3>
+              <p>O acompanhamento anual da saúde da mulher, com exame preventivo e orientação.</p>
+              <span class="proc__dica">Agendar
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+          </summary>
+          <div class="proc__acao">
+            <a class="proc__botao" href="https://wa.me/5567984673592?text=Ol%C3%A1%2C%20Dra.%20Carolina!%20Gostaria%20de%20agendar%20Preven%C3%A7%C3%A3o." target="_blank" rel="noopener" data-zap>Agendar serviço</a>
+          </div>
+        </details>
+      </article>
+
+      <article class="proc reveal" style="--d:2">
+        <details>
+          <summary>
+            <div class="proc__topo">
+              <div class="proc__foto">
+                <img src="images/servicos/exames.webp" alt="Tubos de coleta para exames laboratoriais" width="800" height="533" loading="lazy">
+              </div>
+              <span class="proc__selo" aria-hidden="true"><i>03</i></span>
+            </div>
+            <div class="proc__corpo">
+              <h3>Exames</h3>
+              <p>Solicitação e leitura dos exames de rotina — preventivo, laboratoriais e de imagem.</p>
+              <span class="proc__dica">Agendar
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+          </summary>
+          <div class="proc__acao">
+            <a class="proc__botao" href="https://wa.me/5567984673592?text=Ol%C3%A1%2C%20Dra.%20Carolina!%20Gostaria%20de%20agendar%20Exames." target="_blank" rel="noopener" data-zap>Agendar serviço</a>
+          </div>
+        </details>
+      </article>
+
+      <article class="proc reveal" style="--d:3">
+        <details>
+          <summary>
+            <div class="proc__topo">
+              <div class="proc__foto">
+                <img src="images/servicos/contracepcao.webp" alt="Cartela de pílulas anticoncepcionais" width="800" height="533" loading="lazy">
+              </div>
+              <span class="proc__selo" aria-hidden="true"><i>04</i></span>
+            </div>
+            <div class="proc__corpo">
+              <h3>Contracepção</h3>
+              <p>Escolha do método que combina com o seu corpo e a sua rotina, com explicação de cada opção.</p>
+              <span class="proc__dica">Agendar
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+          </summary>
+          <div class="proc__acao">
+            <a class="proc__botao" href="https://wa.me/5567984673592?text=Ol%C3%A1%2C%20Dra.%20Carolina!%20Gostaria%20de%20agendar%20Contracep%C3%A7%C3%A3o." target="_blank" rel="noopener" data-zap>Agendar serviço</a>
+          </div>
+        </details>
+      </article>
+
+      <article class="proc reveal">
+        <details>
+          <summary>
+            <div class="proc__topo">
+              <div class="proc__foto">
+                <img src="images/servicos/insercao-diu.webp" alt="Médica ao lado do aparelho de ultrassom no consultório" width="800" height="533" loading="lazy">
+              </div>
+              <span class="proc__selo" aria-hidden="true"><i>05</i></span>
+            </div>
+            <div class="proc__corpo">
+              <h3>Aplicação de DIU e Implanon</h3>
+              <p>Métodos contraceptivos de longa duração — DIU hormonal ou de cobre e o implante subcutâneo, colocados em consultório com orientação antes e depois.</p>
+              <span class="proc__dica">Agendar
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+          </summary>
+          <div class="proc__acao">
+            <a class="proc__botao" href="https://wa.me/5567984673592?text=Ol%C3%A1%2C%20Dra.%20Carolina!%20Gostaria%20de%20agendar%20Aplica%C3%A7%C3%A3o%20de%20DIU%20e%20Implanon." target="_blank" rel="noopener" data-zap>Agendar serviço</a>
+          </div>
+        </details>
+      </article>
+
+      <article class="proc reveal" style="--d:1">
+        <details>
+          <summary>
+            <div class="proc__topo">
+              <div class="proc__foto">
+                <img src="images/servicos/pre-natal.webp" alt="Ultrassom sendo realizado em uma gestante" width="800" height="533" loading="lazy">
+              </div>
+              <span class="proc__selo" aria-hidden="true"><i>06</i></span>
+            </div>
+            <div class="proc__corpo">
+              <h3>Pré-natal e pós-parto</h3>
+              <p>Acompanhamento da gestação do começo ao fim e o retorno depois do parto — para a mãe, não só para o bebê.</p>
+              <span class="proc__dica">Agendar
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+          </summary>
+          <div class="proc__acao">
+            <a class="proc__botao" href="https://wa.me/5567984673592?text=Ol%C3%A1%2C%20Dra.%20Carolina!%20Gostaria%20de%20agendar%20Pr%C3%A9-natal%20e%20p%C3%B3s-parto." target="_blank" rel="noopener" data-zap>Agendar serviço</a>
+          </div>
+        </details>
+      </article>
+
+      <article class="proc reveal" style="--d:2">
+        <details>
+          <summary>
+            <div class="proc__topo">
+              <div class="proc__foto">
+                <img src="images/servicos/terapia-hormonal.webp" alt="Aplicação de medicação injetável no braço de uma paciente" width="800" height="533" loading="lazy">
+              </div>
+              <span class="proc__selo" aria-hidden="true"><i>07</i></span>
+            </div>
+            <div class="proc__corpo">
+              <h3>Terapia Hormonal</h3>
+              <p>Reposição e ajuste hormonal conduzidos caso a caso, do climatério a outras indicações.</p>
+              <span class="proc__dica">Agendar
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+          </summary>
+          <div class="proc__acao">
+            <a class="proc__botao" href="https://wa.me/5567984673592?text=Ol%C3%A1%2C%20Dra.%20Carolina!%20Gostaria%20de%20agendar%20Terapia%20Hormonal." target="_blank" rel="noopener" data-zap>Agendar serviço</a>
+          </div>
+        </details>
+      </article>
+
+      <article class="proc reveal" style="--d:3">
+        <details>
+          <summary>
+            <div class="proc__topo">
+              <div class="proc__foto">
+                <img src="images/servicos/saude-sexual.webp" alt="Médica conversando com uma paciente no consultório" width="800" height="533" loading="lazy">
+              </div>
+              <span class="proc__selo" aria-hidden="true"><i>08</i></span>
+            </div>
+            <div class="proc__corpo">
+              <h3>Saúde Sexual</h3>
+              <p>Espaço para falar de desejo, dor, prevenção e o que mais incomodar — uma vida sexual ativa e saudável, com escuta humanizada e sem constrangimento.</p>
+              <span class="proc__dica">Agendar
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+          </summary>
+          <div class="proc__acao">
+            <a class="proc__botao" href="https://wa.me/5567984673592?text=Ol%C3%A1%2C%20Dra.%20Carolina!%20Gostaria%20de%20agendar%20Sa%C3%BAde%20Sexual." target="_blank" rel="noopener" data-zap>Agendar serviço</a>
+          </div>
+        </details>
+      </article>
+    </div>
   </div>
 </section>
 

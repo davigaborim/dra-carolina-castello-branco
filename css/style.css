@@ -358,11 +358,13 @@ strong{ font-weight:500; color:var(--texto-forte); }
 }
 
 /* O rótulo aqui é MAIS escuro que o `--ouro-fundo` do resto do site. Aquele
-   valor foi calculado para o blush (#FBF1F0, 4,79:1) e a abertura ficou mais
-   escura que o blush: medido sobre o papel real do herói, o `--ouro-fundo` dá
-   4,03:1 — reprova. Este dá 4,68:1. Se a abertura clarear de novo, dá para
-   voltar ao token comum; se escurecer mais, medir outra vez. */
-.abertura .rotulo{ color:#7A5C31; }
+   valor foi calculado para o blush (#FBF1F0, 4,79:1) e a abertura é mais
+   escura que o blush — e, desde que as dobras da seda ganharam amplitude,
+   também é MÓVEL: a medida que vale não é a cor média, é a dobra mais escura
+   que passa por baixo do rótulo (#EAD2D6). Sobre ela, o `--ouro-fundo` dá
+   4,03:1 e o #7A5C31 dá 4,48:1 — os dois reprovam. Este dá 5,24:1.
+   Mexeu na amplitude da seda, meça este de novo. */
+.abertura .rotulo{ color:#6B502A; }
 
 /* A marca cresceu — pedido da doutora — e virou vetor, então cresce sem
    borrar. Ver images/marca.svg. */
@@ -616,37 +618,123 @@ strong{ font-weight:500; color:var(--texto-forte); }
 
 /* --------------------------------------------------------------------------
    8b. Serviços — os oito procedimentos
-   Mora aqui e não numa seção nova para não renumerar o sumário do arquivo:
-   são as duas frentes da seção 8 abertas em detalhe. Cartão mais leve que a
-   `.carta` (sem inclinação, sem brilho): são oito, e oito cartões pesados
-   viram parede. O fio de ouro à esquerda é o que dá o alinhamento da lista.
+   Mora aqui e não numa seção nova para não renumerar o sumário do arquivo.
+
+   É o `ProcedimentoCard.astro` do site da Clínica Castello Branco, refeito em
+   CSS puro: a cliente aprovou aquele cartão, então este copia as medidas em
+   vez de inventar. A tradução foi direta porque os dois sites usam os mesmos
+   valores com nomes diferentes — pearl/rose/rose-deep/charcoal/lead-soft de lá
+   são perola/rosa/rosa-fundo/texto-forte/texto-fraco aqui.
+
+   O cartão é um `<details>`: o clique abre o botão de agendar sem JS nenhum,
+   já com teclado e leitor de tela funcionando.
    -------------------------------------------------------------------------- */
 
-.servicos{
-  list-style:none; display:grid; gap:clamp(14px,2vw,24px);
-  grid-template-columns:repeat(auto-fit,minmax(258px,1fr));
+/* 1 / 2 / 4 colunas, os mesmos cortes do `sm:grid-cols-2 lg:grid-cols-4` de
+   lá. `auto-fit` com minmax parece mais esperto, mas aqui caía para 3 colunas
+   no desktop — a coluna daqui é ~250px contra ~276px da clínica, e a diferença
+   é só a largura do miolo, não o desenho. */
+.procs{
+  margin-top:56px;
+  display:grid; gap:32px;
+  grid-template-columns:1fr;
 }
-.servico{
-  position:relative;
-  background:var(--perola);
-  border:1px solid rgba(176,141,87,.20);
-  border-left:2px solid rgba(176,141,87,.42);
-  border-radius:0 var(--raio) var(--raio) 0;
-  padding:clamp(24px,3vw,32px);
-  transition:border-color .4s ease,box-shadow .45s var(--ease),transform .45s var(--ease);
-}
-.servico:hover{
-  border-color:rgba(176,141,87,.34); border-left-color:var(--rosa-fundo);
-  box-shadow:var(--sombra); transform:translateY(-3px);
-}
-.servico__num{
-  font-family:var(--display); font-size:1.5rem; line-height:1;
-  color:rgba(176,141,87,.42); display:block; margin-bottom:8px;
-}
-.servico h3{ font-size:1.24rem; font-weight:400; color:var(--texto-forte); margin-bottom:9px; }
-.servico p{ color:var(--texto-fraco); font-size:.94rem; }
+@media (min-width:640px){ .procs{ grid-template-columns:repeat(2,1fr); } }
+@media (min-width:1024px){ .procs{ grid-template-columns:repeat(4,1fr); } }
 
-.servicos__pe{ margin-top:clamp(30px,4vw,44px); text-align:center; }
+.proc{
+  display:flex; flex-direction:column;
+  border-radius:24px;
+  border:1px solid rgba(199,126,146,.25);
+  background:rgba(255,252,249,.85);
+  box-shadow:var(--sombra);
+  transition:transform .7s var(--ease),box-shadow .7s var(--ease),border-color .7s var(--ease);
+}
+.proc:hover{
+  transform:translateY(-6px);
+  border-color:rgba(199,126,146,.55);
+  box-shadow:var(--sombra-alta);
+}
+.proc details{ display:flex; flex:1; flex-direction:column; }
+
+/* `block` de propósito: Safari antigo perde o toggle quando o `summary` vira
+   flex. E sem `list-style` some o triângulo nativo — a dica "Agendar" com a
+   seta já é o affordance do cartão. */
+.proc summary{ display:block; list-style:none; cursor:pointer; }
+.proc summary::-webkit-details-marker{ display:none; }
+
+/* O `overflow:hidden` fica só na moldura da foto: se envolvesse o selo
+   numerado, cortaria a metade dele que avança sobre o texto. */
+.proc__topo{ position:relative; }
+.proc__foto{
+  position:relative; overflow:hidden;
+  border-radius:24px 24px 0 0;
+}
+.proc__foto img{
+  display:block; width:100%; aspect-ratio:3 / 2; object-fit:cover;
+  /* a "luz" das fotos do site da clínica: elas são de banco e vêm mais duras
+     do que o resto da página */
+  filter:brightness(1.08) saturate(1.05) contrast(.97);
+  transition:transform 1.3s ease-out;
+}
+.proc:hover .proc__foto img{ transform:scale(1.07); }
+.proc__foto::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(180deg,
+    rgba(253,248,243,.26) 0%,rgba(251,241,240,.10) 45%,rgba(242,229,210,.30) 100%);
+}
+
+/* Selo numerado, ancorado na quina de baixo da foto, metade dentro e metade
+   fora — é o detalhe que faz o cartão não parecer um card genérico. */
+.proc__selo{
+  position:absolute; bottom:0; left:24px; z-index:2;
+  display:grid; place-items:center;
+  width:56px; height:56px; translate:0 50%;
+  border-radius:999px; border:1px solid rgba(199,126,146,.30);
+  background:var(--perola); box-shadow:var(--sombra);
+}
+/* O número vai num filho: `background-clip:text` no próprio selo apagaria o
+   disco branco dele junto. O degradê é o mesmo `.rosado` do site da clínica. */
+.proc__selo i{
+  font-family:var(--display); font-style:normal; font-size:1.25rem; line-height:1;
+  background-image:linear-gradient(100deg,#9E4F66 0%,#C77E92 30%,#E7BCC6 50%,#C77E92 72%,#9E4F66 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+
+.proc__corpo{ display:flex; flex:1; flex-direction:column; padding:48px 28px 28px; }
+.proc__corpo h3{
+  font-family:var(--display); font-size:1.5rem; font-weight:400;
+  line-height:1.15; color:var(--texto-forte);
+}
+.proc__corpo p{
+  margin-top:12px; font-size:.875rem; font-weight:300; line-height:1.65;
+  color:var(--texto-fraco);
+}
+.proc__dica{
+  margin-top:20px; display:inline-flex; align-items:center; gap:8px;
+  font-size:.62rem; text-transform:uppercase; letter-spacing:.18em;
+  color:var(--rosa-fundo);
+}
+.proc__dica svg{ width:12px; height:12px; transition:transform .5s var(--ease); }
+.proc details[open] .proc__dica svg{ transform:rotate(180deg); }
+
+.proc__acao{ padding:0 28px 32px; }
+.proc__botao{
+  display:flex; align-items:center; justify-content:center;
+  /* 18px e não os 32px de lá: a coluna daqui é ~26px mais estreita e, com o
+     `letter-spacing` de .18em, "Agendar serviço" quebrava em duas linhas. */
+  width:100%; padding:14px 18px; border-radius:999px;
+  font-size:.7rem; text-transform:uppercase; letter-spacing:.18em;
+  text-decoration:none; color:#fff;
+  background:linear-gradient(90deg,var(--rosa-fundo),var(--rosa),var(--rosa-claro));
+  box-shadow:0 14px 34px -16px rgba(158,79,102,.8);
+  transition:transform .5s ease-out,box-shadow .5s ease-out;
+}
+.proc__botao:hover{ transform:translateY(-2px); box-shadow:0 20px 44px -16px rgba(158,79,102,.95); }
+
+/* Cabeçalho alinhado à esquerda, como o da seção de lá. */
+.fio-orn--esq{ justify-content:flex-start; margin-inline:0; }
+.cab__texto--esq{ margin-inline:0; max-width:36rem; }
 
 /* ==========================================================================
    9. A CONSULTA

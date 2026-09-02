@@ -10,9 +10,11 @@ ver localmente, abra o `index.html` no navegador — não precisa de servidor.
 — é a versão de aprovação, servida pelo GitHub Pages a partir da branch `main`.
 O endereço final continua sendo `dracarolinacastellobranco.com.br`.
 
-**Site inteiro: 371 KB** (era 326 KB até as fotos novas da clínica e a marca em
-vetor entrarem, em 02/09). Para comparação, só as imagens do site da Clínica
-Castello Branco somam 6,6 MB.
+**Site inteiro: 561 KB** — 326 KB no lançamento, 371 KB com as fotos novas da
+clínica e a marca em vetor, 561 KB depois que os oito cartões de serviço
+trouxeram as fotos deles. Para comparação, só as imagens do site da Clínica
+Castello Branco somam 6,6 MB, e essas mesmas oito fotos pesam 610 KB em JPG
+lá contra 178 KB em WebP aqui.
 
 ---
 
@@ -31,7 +33,7 @@ dra-carolina/
 │   ├── main.js         cabeçalho, menu, revelação, parallax, acordeão
 │   ├── flor.js         A FLOR — a assinatura do site
 │   └── seda.js         o tecido em WebGL — duas paletas, ver abaixo
-├── images/             7 arquivos, 240 KB no total
+├── images/             7 arquivos + servicos/ com 8 fotos, 430 KB no total
 └── originais/          o que a cliente mandou; NÃO é servido, é só fonte
 ```
 
@@ -49,6 +51,7 @@ As fotos são redimensionadas para o tamanho de exibição e convertidas para
 | `logo.svg` | a marca completa com o nome, em `#FBF1F0` | idem |
 | `apple-touch-icon.png` | ícone de 180×180 para iOS | gerado do `marca.svg` |
 | `og.jpg` | miniatura de compartilhamento, 1200×630 | montada aqui |
+| `servicos/*.webp` | as 8 fotos dos cartões de serviço, 800×533 | as mesmas do site da clínica, convertidas |
 
 > [!note] A marca virou vetor em 02/09
 > Até então o monograma era um PNG recuperado do site antigo por limiar de
@@ -83,6 +86,19 @@ padrão, claro na abertura.
 > véu em 84% de branco, `0.18` passava; quando o véu afinou para 66%, o mesmo
 > `0.18` voltou a marcar e teve de cair para `0.12`. **Mexeu no véu, reveja o
 > fio.**
+
+> [!warning] Amplitude e vinheta são o que faz a dobra existir
+> A primeira paleta clara tinha a média certa e as cinco cores muito juntas, com
+> a vinheta em `0.34` lavando quase tudo para o papel. Resultado: o tecido
+> estava lá, mexendo, e a abertura parecia uma chapada só — foi reprovado
+> assim. **O claro pede MAIS distância entre o alto e o fundo da dobra que o
+> escuro, não menos:** no vinho meio ponto de luminância já lê. Hoje a paleta
+> vai de `#FDF4F3` a `#B26E86` e o piso da vinheta é `0.62`.
+>
+> E abrir a amplitude move o contraste do texto: a medida que vale deixa de ser
+> a cor média e passa a ser **a dobra mais escura que passa por baixo da
+> letra** — a seda anda, então uma hora ela passa. Foi o que obrigou o rótulo
+> da abertura a escurecer duas vezes. Ver "A paleta".
 
 ---
 
@@ -243,14 +259,26 @@ Os oito procedimentos vieram da página `/parto` do site da **Clínica Castello
 Branco**, onde ela também atende: mesmo texto, mesma ordem, sem reescrita. A
 fonte é `src/data/site.ts` daquele repositório, no array `servicosObstetricia`.
 
-Duas decisões que valem registrar:
+A primeira versão era tipográfica, sem foto, para poupar peso. **Foi
+descartada:** a cliente aprovou o cartão do site da clínica e pediu igual. O
+que está aqui é o `ProcedimentoCard.astro` de lá refeito em CSS puro — mesmo
+raio, mesma foto em 3/2, mesmo selo numerado atravessando a quina, mesmo
+`<details>` abrindo o botão, mesma pílula rose em degradê.
 
-- **Sem foto.** No site da clínica cada cartão tem imagem; oito imagens aqui
-  seriam ~2 MB num site de 371 KB, e o valor da lista está no texto, não em
-  foto de tubo de coleta. Os cartões são tipográficos, com o fio de ouro à
-  esquerda dando o alinhamento.
-- **Seção, não subpágina.** É a lista de serviços dela — o conteúdo com mais
-  valor comercial da página. Numa subpágina, quase ninguém chegaria.
+A tradução foi direta porque os dois sites usam os mesmos valores de cor com
+nomes diferentes: `pearl`/`rose`/`rose-deep`/`charcoal`/`lead-soft` de lá são
+`--perola`/`--rosa`/`--rosa-fundo`/`--texto-forte`/`--texto-fraco` aqui.
+
+O que **não** é igual, e por quê:
+
+| Lá | Aqui | Motivo |
+|---|---|---|
+| JPG 1200×800, 610 KB | WebP 800×533, 178 KB | mesma foto, mesmo enquadramento; só o peso |
+| `px-8` no botão | `padding-inline:18px` | a coluna daqui é ~26px mais estreita e o texto quebrava em duas linhas |
+| grade em `max-w-7xl` | grade no `--wrap` de 1180px | é o container do site inteiro |
+
+**Seção, não subpágina:** é a lista de serviços dela, o conteúdo com mais valor
+comercial da página. Numa subpágina, quase ninguém chegaria.
 
 > [!warning] O texto tem dois donos agora
 > Se a clínica mudar a descrição de um serviço no `/parto`, este site **não

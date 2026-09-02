@@ -140,15 +140,21 @@
       '  cor *= 0.42 + 0.66 * smoothstep(1.45, 0.05, d);'
     ],
     claro: [
-      '  vec3 papel  = vec3(0.969, 0.902, 0.906);',   /* #F7E6E7 */
-      '  vec3 blush  = vec3(0.902, 0.769, 0.800);',   /* #E6C4CC */
-      '  vec3 rosa   = vec3(0.820, 0.624, 0.682);',   /* #D19FAE */
-      '  vec3 rosaEs = vec3(0.780, 0.494, 0.573);',   /* #C77E92 */
+      /* A amplitude é o que faz a dobra aparecer. Uma primeira versão manteve
+         a média certa mas com as cinco cores muito próximas, e a abertura
+         virou uma chapada só: o tecido estava lá, mexendo, e não se via. O
+         claro pede MAIS distância entre o alto e o fundo da dobra que o
+         escuro, não menos — no vinho, meio ponto de luminância já lê. */
+      '  vec3 papel  = vec3(0.992, 0.957, 0.953);',   /* #FDF4F3 */
+      '  vec3 blush  = vec3(0.918, 0.804, 0.827);',   /* #EACDD3 */
+      '  vec3 rosa   = vec3(0.784, 0.573, 0.647);',   /* #C892A5 */
+      '  vec3 rosaEs = vec3(0.698, 0.431, 0.525);',   /* #B26E86 */
       '  vec3 ouro   = vec3(0.804, 0.667, 0.427);',   /* #CDAA6D */
       '',
-      '  vec3 cor = mix(papel, blush, smoothstep(0.14, 0.58, v));',
-      '  cor = mix(cor, rosa,   smoothstep(0.46, 0.88, v) * 0.42);',
-      '  cor = mix(cor, rosaEs, smoothstep(0.80, 1.06, v) * 0.14);',
+      /* faixas mais estreitas = transição mais curta = crista mais definida */
+      '  vec3 cor = mix(papel, blush, smoothstep(0.20, 0.52, v));',
+      '  cor = mix(cor, rosa,   smoothstep(0.48, 0.80, v) * 0.62);',
+      '  cor = mix(cor, rosaEs, smoothstep(0.74, 0.98, v) * 0.32);',
       '',
       /* No claro o fio se MISTURA ao ouro; somar estouraria para o branco. E
          entra fraco: no escuro ele era brilho sobre o vinho, aqui vira veio
@@ -158,9 +164,11 @@
       '  cor = mix(cor, ouro, fio * 0.12);',
       '',
       '  float d = length(p - vec2(u_semente * 0.37, u_semente * 0.19 + u_deriva));',
-      /* e a vinheta CLAREIA para o papel: multiplicar escureceria a borda e
-         traria de volta exatamente o peso que era para sair daqui */
-      '  cor = mix(papel, cor, 0.34 + 0.66 * smoothstep(1.45, 0.05, d));'
+      /* E a vinheta CLAREIA para o papel: multiplicar escureceria a borda e
+         traria de volta o peso que era para sair daqui. Mas o piso não pode
+         ser baixo: em 0.34 ela apagava a dobra em quase toda a tela e sobrava
+         chapado. Em 0.62 ela só suaviza as quinas. */
+      '  cor = mix(papel, cor, 0.62 + 0.38 * smoothstep(1.45, 0.05, d));'
     ]
   };
 
