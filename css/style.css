@@ -332,13 +332,13 @@ strong{ font-weight:500; color:var(--texto-forte); }
      fios, a seda correndo atrás — mas o peso saiu: quem carrega o contraste
      agora é a tinta, não o fundo. */
   background:
-    radial-gradient(120% 90% at 50% 0%,#FFFAF9 0%,transparent 60%),
-    linear-gradient(180deg,#FCF3F2 0%,#F0D6DB 100%);
+    radial-gradient(120% 90% at 50% 0%,#FBEEEE 0%,transparent 60%),
+    linear-gradient(180deg,#F7E6E7 0%,#E3BFC7 100%);
   color:var(--texto);
   overflow:hidden;
   /* o véu da seda, invertido: neste aqui ele clareia em vez de escurecer */
   --seda-veu:radial-gradient(120% 80% at 50% 45%,
-              rgba(255,250,249,.42) 0%,rgba(255,250,249,.70) 68%,rgba(255,250,249,.84) 100%);
+              rgba(255,250,249,.30) 0%,rgba(255,250,249,.52) 68%,rgba(255,250,249,.66) 100%);
 }
 
 .portal{
@@ -356,6 +356,13 @@ strong{ font-weight:500; color:var(--texto-forte); }
   border:1px solid rgba(158,79,102,.16); border-bottom:0;
   border-radius:var(--arco); pointer-events:none;
 }
+
+/* O rótulo aqui é MAIS escuro que o `--ouro-fundo` do resto do site. Aquele
+   valor foi calculado para o blush (#FBF1F0, 4,79:1) e a abertura ficou mais
+   escura que o blush: medido sobre o papel real do herói, o `--ouro-fundo` dá
+   4,03:1 — reprova. Este dá 4,68:1. Se a abertura clarear de novo, dá para
+   voltar ao token comum; se escurecer mais, medir outra vez. */
+.abertura .rotulo{ color:#7A5C31; }
 
 /* A marca cresceu — pedido da doutora — e virou vetor, então cresce sem
    borrar. Ver images/marca.svg. */

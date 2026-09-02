@@ -71,16 +71,18 @@ As fotos são redimensionadas para o tamanho de exibição e convertidas para
 
 | Seção | Tema | Como fica |
 |---|---|---|
-| `.abertura` | `claro` | rosa de papel; a vinheta **clareia** para o papel e o fio de ouro entra fraco (0.18) |
+| `.abertura` | `claro` | rosa de papel; a vinheta **clareia** para o papel e o fio de ouro entra fraco (0.12) |
 | `.contato` | `escuro` (padrão) | vinho, como sempre foi |
 
 O véu que protege a leitura acompanha, pela variável `--seda-veu`: escuro por
 padrão, claro na abertura.
 
 > [!warning] No claro, o fio de ouro passa a ser textura
-> Ele era brilho sobre o vinho. Sobre o papel vira veio de mármore, e acima de
-> `fio * 0.2` a abertura ganha uma textura que ninguém pediu. Se for mexer,
-> mexa para baixo.
+> Ele era brilho sobre o vinho. Sobre o papel vira veio de mármore, e a
+> abertura ganha uma textura que ninguém pediu. O valor depende do véu: com o
+> véu em 84% de branco, `0.18` passava; quando o véu afinou para 66%, o mesmo
+> `0.18` voltou a marcar e teve de cair para `0.12`. **Mexeu no véu, reveja o
+> fio.**
 
 ---
 
@@ -283,8 +285,9 @@ briga com o outro metal; em fio, os dois convivem.
 > [!warning] A abertura é clara desde 02/09
 > A doutora achou o herói vinho "muito forte e escuro". A **forma** ficou igual
 > — arco, dois fios, seda atrás, marca no topo — e só o peso saiu: o fundo
-> virou rosa de papel (`#FCF3F2` → `#F0D6DB`) e quem carrega o contraste agora
-> é a tinta.
+> virou rosa de papel e quem carrega o contraste agora é a tinta. Passou por
+> dois ajustes no mesmo dia: primeiro claro demais, depois assentou em
+> `#F7E6E7` → `#E3BFC7`, com o véu da seda em 30%/52%/66%.
 >
 > Isso arrastou o cabeçalho junto: o `.topo` **nasce com tinta escura**, e o
 > `is-preso` só acrescenta o fundo e a sombra. Não existe mais o estado "sobre
@@ -310,6 +313,18 @@ em corpo grande são o que este tem de próprio.
 > `--ouro-fundo` (#856637), que é o mais claro que ainda passa 4,5:1 sobre o
 > **blush** — o mais escuro dos três papéis (4,79:1). Se clarear esse valor,
 > confira o blush primeiro, não o creme.
+>
+> **A abertura tem um ouro só dela** (`#7A5C31`, em `.abertura .rotulo`): o
+> papel do herói ficou mais escuro que o blush, e ali o `--ouro-fundo` cai para
+> 4,03:1 — reprova. O valor novo dá 4,68:1, medido no pixel do herói renderizado
+> e não na paleta de origem, porque quem pinta o fundo é o canvas da seda, não
+> o gradiente do CSS.
+
+> [!note] O gradiente CSS da abertura é só reserva
+> O canvas da seda é **opaco** (`alpha:false`) e cobre a seção inteira, com o
+> véu por cima. O `background` do `.abertura` só aparece em máquina sem WebGL —
+> mas precisa continuar parecido com a seda, senão o site tem duas caras.
+> Mexeu em um, mexa no outro.
 
 ---
 

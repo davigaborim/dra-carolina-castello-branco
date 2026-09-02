@@ -140,9 +140,9 @@
       '  cor *= 0.42 + 0.66 * smoothstep(1.45, 0.05, d);'
     ],
     claro: [
-      '  vec3 papel  = vec3(0.988, 0.953, 0.949);',   /* #FCF3F2 */
-      '  vec3 blush  = vec3(0.941, 0.839, 0.859);',   /* #F0D6DB */
-      '  vec3 rosa   = vec3(0.867, 0.686, 0.729);',   /* #DDAFBA */
+      '  vec3 papel  = vec3(0.969, 0.902, 0.906);',   /* #F7E6E7 */
+      '  vec3 blush  = vec3(0.902, 0.769, 0.800);',   /* #E6C4CC */
+      '  vec3 rosa   = vec3(0.820, 0.624, 0.682);',   /* #D19FAE */
       '  vec3 rosaEs = vec3(0.780, 0.494, 0.573);',   /* #C77E92 */
       '  vec3 ouro   = vec3(0.804, 0.667, 0.427);',   /* #CDAA6D */
       '',
@@ -155,7 +155,7 @@
          de mármore — passando de ~0.2 a abertura ganha textura, que é
          exatamente o que ninguém pediu. */
       '  float fio = pow(abs(sin(v * 9.0 + length(r) * 2.6)), 24.0);',
-      '  cor = mix(cor, ouro, fio * 0.18);',
+      '  cor = mix(cor, ouro, fio * 0.12);',
       '',
       '  float d = length(p - vec2(u_semente * 0.37, u_semente * 0.19 + u_deriva));',
       /* e a vinheta CLAREIA para o papel: multiplicar escureceria a borda e
