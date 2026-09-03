@@ -19,6 +19,21 @@ ErrorDocument 404 /404.html
 
   RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
   RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+  # ---- Herança do WordPress antigo ---------------------------------------
+  # O site antigo tinha 4 URLs no índice do Google. Só a home valia alguma
+  # coisa, e ela continua sendo "/". As outras três são lixo padrão do
+  # WordPress que nunca foi apagado — mandam 301 para a home para não virarem
+  # 404 no Search Console e para não perder o pouco de autoridade que tenham.
+  #
+  # De propósito, NÃO existe um "tudo que sobrar vai para a home": o Google
+  # trata redirecionamento em massa para a raiz como soft 404. O que não está
+  # listado aqui cai no 404.html, que é o comportamento certo.
+
+  RewriteRule ^2025/10/29/hello-world/?$   / [L,R=301]
+  RewriteRule ^category/uncategorized/?$   / [L,R=301]
+  RewriteRule ^author/admin/?$             / [L,R=301]
+  RewriteRule ^feed/?$                     / [L,R=301]
 </IfModule>
 
 # ---- Cabeçalhos de segurança --------------------------------------------

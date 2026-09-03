@@ -104,20 +104,21 @@ padrão, claro na abertura.
 
 ## Antes de publicar
 
-### 1. CRM e RQE — obrigatório
+### 1. CRM e RQE — preenchidos
 
-O rodapé está com `CRM/MS 0000` e `RQE 0000`. **Isso precisa ser preenchido
-com os números reais antes de o site ir ao ar.**
+`CRM/MS 10631` e `RQE 8661`, informados pela Dra. Carolina em 02/09/2026.
+Estão em **4 lugares** do `index.html`: 2 no rodapé (`.rodape__crm`) e 2 no
+array `identifier` do `application/ld+json`.
 
 A Resolução CFM nº 1.974/2011 (com as alterações da 2.336/2023) exige, em toda
 publicidade médica, o **nome do médico e o número de inscrição no CRM**; e o
 **RQE** é exigido para anunciar a especialidade — que é exatamente o que o site
 faz em cada seção. O site antigo não trazia nenhum dos dois.
 
-Trocar em **dois lugares**, os dois no `index.html`:
-
-- o parágrafo `.rodape__crm`, no rodapé;
-- o bloco `application/ld+json`, no fim do arquivo (opcional, mas vale).
+> [!warning] Se um dia o número mudar
+> Trocar nos 4 lugares. Não deixe o JSON-LD para trás: dado estruturado com
+> número errado é pior que dado nenhum, porque o Google trata como declaração
+> formal, não como sugestão.
 
 ### 2. Texto novo que precisa do aval dela
 
@@ -145,19 +146,19 @@ foi o que ficou. Se ela preferir "Orla Morena", é trocar em um lugar.
 
 | O quê | Onde | Quantas vezes |
 |---|---|---|
-| WhatsApp `5567984673592` | `index.html` (8) e `404.html` (1) | **9** |
+| WhatsApp `5567984673592` | `index.html` (16) e `404.html` (1) | **17** |
 | Telefone exibido `(67) 98467-3592` | `index.html` | 2 |
 | Instagram `carolina.castellobranco` | `index.html` | 4 |
-| `CRM/MS 0000` e `RQE 0000` | `index.html` | 2 |
+| `CRM/MS 10631` e `RQE 8661` | `index.html` (rodapé 2, JSON-LD 2) | **4** |
 | Endereço | `index.html` (texto, mapa, JSON-LD) | 6 |
 | Horários | `index.html` (seção Consulta, Contato, JSON-LD) | 4 |
-| Domínio | `index.html` (5), `sitemap.xml`, `robots.txt` | 7 |
+| Domínio | `index.html` (6), `sitemap.xml`, `robots.txt` | 8 |
 
 Os textos das cinco fases são os `<li class="fase">` do `index.html`, em texto
 puro. Trocar um texto ali é só editar — a flor não precisa saber de nada.
 
 > [!tip] Se o número mudar
-> São 9 lugares e todos são o mesmo literal. `sed -i 's/5567984673592/NOVO/g'
+> São 17 lugares e todos são o mesmo literal. `sed -i 's/5567984673592/NOVO/g'
 > index.html 404.html` resolve, mas confira depois se o texto exibido
 > `(67) 98467-3592` também mudou — esse é escrito por extenso.
 
@@ -374,20 +375,58 @@ conversa de manutenção. Sem ele, a reunião vira opinião.
 
 ## Publicar na Hostinger
 
-1. No hPanel: **Gerenciador de arquivos → `public_html`**.
-2. Arrastar **o conteúdo** da pasta `dra-carolina/` — os arquivos e as pastas
-   `css/`, `js/` e `images/` soltos, **não a pasta inteira**. Se a pasta for
-   junto, o site cai em `seudominio.com/dra-carolina/` e os caminhos do
-   `404.html`, que começam na raiz, quebram.
-3. **`originais/` não vai.** É a pasta de fonte — os PDFs da logo e as fotos
-   como vieram da cliente, meio mega que ninguém baixa. Fica no repositório
-   para a marca não se perder de novo, mas não no servidor.
+O que vai para o servidor fica pronto na pasta **`carolina-hostinger/`**, na
+raiz do repositório. Ela **não é versionada** (está no `.gitignore`) — é cópia
+do que já está no git, montada só para arrastar.
 
-> [!danger] O `.htaccess` começa com ponto
-> Programa de FTP costuma **esconder** arquivos que começam com ponto. Se ele
-> não subir, o site perde HTTPS forçado, cache, cabeçalhos de segurança **e o
-> 404 do tubarão** — o visitante vê a tela cinza padrão do servidor. Ligue
-> "mostrar arquivos ocultos" antes de enviar.
+1. No hPanel: **Gerenciador de arquivos → `public_html`**.
+2. Apagar o que estiver lá dentro (o WordPress antigo, se for o caso).
+3. Abrir `carolina-hostinger/` no Explorer, **selecionar tudo** (`Ctrl+A`) e
+   arrastar para a janela do `public_html`.
+
+Arraste **o conteúdo**, não a pasta. Se a pasta for junto, o site cai em
+`seudominio.com/carolina-hostinger/` e os caminhos do `404.html`, que começam
+na raiz, quebram.
+
+> [!danger] Conferir o `.htaccess` depois de arrastar
+> Ele começa com ponto. No Windows ele aparece normalmente no Explorer, mas
+> muito gerenciador de arquivos web **esconde** arquivo assim — e se ele não
+> subir, o site perde HTTPS forçado, os 301 das URLs antigas, o cache, os
+> cabeçalhos de segurança **e o 404 do tubarão**, tudo em silêncio.
+>
+> Depois de subir, ligue "mostrar arquivos ocultos" no gerenciador da Hostinger
+> e confirme que `.htaccess` está lá, com ~3,4 KB.
+
+> [!tip] Como saber se subiu a versão certa
+> Abra o site publicado e procure o rodapé. Se estiver escrito **`CRM/MS 0000`**,
+> você subiu uma cópia velha. O certo é `CRM/MS 10631`.
+
+### Regerar a pasta
+
+Depois de mexer no site, no Git Bash a partir da raiz do repositório:
+
+```bash
+rm -rf carolina-hostinger && mkdir -p carolina-hostinger
+cp -r css js images index.html 404.html favicon.svg robots.txt sitemap.xml .htaccess carolina-hostinger/
+```
+
+Para conferir antes de subir — serve a pasta e abre no navegador:
+
+```bash
+cd carolina-hostinger && python -m http.server 4100
+```
+
+(Porta 4000+ de propósito: a 3000 costuma estar ocupada pelo Next.js. E lembre
+de encerrar o servidor depois — enquanto ele roda, a pasta fica travada e o
+`rm -rf` da próxima vez falha com "Device or resource busy".)
+
+### O que fica de fora
+
+A pasta `carolina-hostinger/` já exclui isso, mas para constar: **`originais/`
+não vai.** É a pasta de fonte — os PDFs da logo e as fotos como
+vieram da cliente, meio mega que ninguém baixa. Fica no repositório para a marca
+não se perder de novo, mas não no servidor. `LEIA-ME.md` e `.nojekyll` (que é do
+GitHub Pages) também ficam fora.
 
 O site antigo é WordPress. Ao substituir, lembre de **não apagar o banco antes
 de confirmar** que ninguém precisa do histórico de posts (o site tinha feed RSS

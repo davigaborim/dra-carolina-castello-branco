@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dra. Carolina Castello Branco — Ginecologia e Obstetrícia em Campo Grande</title>
-<meta name="description" content="Ginecologia e obstetrícia em Campo Grande/MS. Consultas construídas a partir da escuta da mulher, com base em evidências, na Clínica Castello Branco. Agende pelo WhatsApp.">
+<title>Dra. Carolina Castello Branco — Ginecologista em Campo Grande</title>
+<meta name="description" content="Ginecologista e obstetra em Campo Grande/MS. Agende pelo WhatsApp. Consultas com escuta e base em evidências, na Clínica Castello Branco.">
 <meta name="theme-color" content="#2A1420">
 <!-- Terceiros (Google Maps) recebem só a origem, nunca o caminho da página. -->
 <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -17,6 +17,7 @@
 <meta property="og:description" content="Saúde da mulher em todas as fases da vida. Campo Grande, MS.">
 <meta property="og:url" content="https://dracarolinacastellobranco.com.br/">
 <meta property="og:image" content="https://dracarolinacastellobranco.com.br/images/og.jpg">
+<meta property="og:image:alt" content="Dra. Carolina Castello Branco, ginecologista e obstetra em Campo Grande">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="pt_BR">
@@ -729,8 +730,8 @@
          na publicidade médica; o RQE é obrigatório para anunciar a especialidade.
          TROCAR ANTES DE PUBLICAR — ver LEIA-ME.md, seção "Antes de publicar". -->
     <p class="rodape__crm">
-      Dra. Carolina Castello Branco · <strong>CRM/MS 0000</strong> ·
-      <strong>RQE 0000</strong> — Ginecologia e Obstetrícia
+      Dra. Carolina Castello Branco · <strong>CRM/MS 10631</strong> ·
+      <strong>RQE 8661</strong> — Ginecologia e Obstetrícia
     </p>
     <p class="rodape__aviso">
       As informações deste site têm caráter informativo e não substituem a consulta
@@ -750,17 +751,23 @@
 </a>
 
 <!-- Dados estruturados: é o que alimenta o painel do Google e a busca local.
-     Trocar o CRM aqui também. -->
+     O CRM e o RQE aparecem aqui em "identifier" — trocar junto com o rodapé. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": ["Physician", "MedicalBusiness"],
+  "@id": "https://dracarolinacastellobranco.com.br/#medica",
   "name": "Dra. Carolina Castello Branco",
   "url": "https://dracarolinacastellobranco.com.br/",
   "image": "https://dracarolinacastellobranco.com.br/images/og.jpg",
   "description": "Médica ginecologista e obstetra em Campo Grande, MS. Atendimento na Clínica Castello Branco.",
   "medicalSpecialty": ["Gynecologic", "Obstetric"],
   "telephone": "+5567984673592",
+  "priceRange": "$$",
+  "identifier": [
+    { "@type": "PropertyValue", "name": "CRM/MS", "value": "10631" },
+    { "@type": "PropertyValue", "name": "RQE", "value": "8661" }
+  ],
   "sameAs": ["https://www.instagram.com/carolina.castellobranco/"],
   "address": {
     "@type": "PostalAddress",
@@ -771,7 +778,13 @@
     "addressCountry": "BR"
   },
   "geo": { "@type": "GeoCoordinates", "latitude": -20.4486, "longitude": -54.6295 },
+  "hasMap": "https://maps.google.com/?q=Av.+Noroeste,+1070+-+Cabre%C3%BAva,+Campo+Grande+-+MS",
   "areaServed": { "@type": "City", "name": "Campo Grande" },
+  "parentOrganization": {
+    "@type": "MedicalClinic",
+    "name": "Clínica Castello Branco",
+    "url": "https://clinicacastellobrancocg.com.br/"
+  },
   "availableService": [
     { "@type": "MedicalProcedure", "name": "Consulta ginecológica" },
     { "@type": "MedicalProcedure", "name": "Pré-natal" },

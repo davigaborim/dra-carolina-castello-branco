@@ -7,5 +7,5 @@ desktop.ini
 .vscode/
 .idea/
 
-# Pasta separada para subir na Hostinger (é cópia do que já está versionado)
-site-hostinger/
+# Pasta pronta para arrastar para a Hostinger (cópia do que já está versionado)
+carolina-hostinger/
