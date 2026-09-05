@@ -148,7 +148,7 @@ foi o que ficou. Se ela preferir "Orla Morena", é trocar em um lugar.
 |---|---|---|
 | WhatsApp `5567984673592` | `index.html` (16) e `404.html` (1) | **17** |
 | Telefone exibido `(67) 98467-3592` | `index.html` | 2 |
-| Instagram `carolina.castellobranco` | `index.html` | 4 |
+| Instagram `clinicacastellobranco` | `index.html` | 4 |
 | `CRM/MS 10631` e `RQE 8661` | `index.html` (rodapé 2, JSON-LD 2) | **4** |
 | Endereço | `index.html` (texto, mapa, JSON-LD) | 6 |
 | Horários | `index.html` (seção Consulta, Contato, JSON-LD) | 4 |
