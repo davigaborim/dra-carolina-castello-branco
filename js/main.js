@@ -223,6 +223,48 @@
   var ano = document.getElementById('ano');
   if (ano) ano.textContent = new Date().getFullYear();
 
+  /* Aviso de cookies (LGPD). O Google entra no <head> sem gravar cookie — ver
+     o bloco "Consentimento" lá. Aqui só se pergunta, guarda a resposta e avisa
+     o Google. Quem recusa depois de ter aceitado tem os cookies dele apagados. */
+  var aviso = document.getElementById('cookies');
+  if (aviso) {
+    var resposta = null;
+    try { resposta = localStorage.getItem('cookies'); } catch (_) {}
+    if (!resposta) aviso.hidden = false;
+
+    aviso.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cookies]');
+      if (!b) return;
+      var sim = b.getAttribute('data-cookies') === 'sim';
+      var v = sim ? 'granted' : 'denied';
+      try { localStorage.setItem('cookies', sim ? 'sim' : 'nao'); } catch (_) {}
+      try {
+        if (typeof window.gtag === 'function') {
+          window.gtag('consent', 'update', { ad_storage: v, ad_user_data: v, ad_personalization: v, analytics_storage: v });
+          window.gtag('set', 'ads_data_redaction', !sim);
+        }
+      } catch (_) {}
+      if (!sim) {
+        document.cookie.split(';').forEach(function (c) {
+          var nome = c.split('=')[0].trim();
+          if (!/^(_gcl|_ga|_gid|_gac)/.test(nome)) return;
+          ['', '; domain=' + location.hostname, '; domain=.' + location.hostname.replace(/^www\./, '')].forEach(function (d) {
+            document.cookie = nome + '=; Max-Age=0; path=/' + d;
+          });
+        });
+      }
+      aviso.hidden = true;
+    });
+
+    document.querySelectorAll('[data-cookies-abrir]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        aviso.hidden = false;
+        var primeiro = aviso.querySelector('button');
+        if (primeiro) primeiro.focus();
+      });
+    });
+  }
+
   /* Todo clique em WhatsApp dispara um evento, SE houver uma ferramenta de
      medição na página. É esse número que sustenta a conversa de renovação —
      ver LEIA-ME.md, "Medição". Sem ferramenta instalada, não faz nada. */

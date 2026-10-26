@@ -925,6 +925,44 @@ strong{ font-weight:500; color:var(--texto-forte); }
   .zap-flut__texto{ display:none; }
 }
 
+/* Aviso de cookies. No desktop fica no canto esquerdo, longe do WhatsApp; no
+   celular ocupa a largura e sobe acima do botão redondo, sem cobrir nenhum
+   dos dois. Recusar e Aceitar têm o mesmo tamanho: a ANPD pede que recusar
+   seja tão fácil quanto aceitar. */
+.cookies{
+  position:fixed; left:clamp(14px,3vw,26px); bottom:clamp(14px,3vw,26px); z-index:75;
+  width:min(400px,calc(100vw - 28px));
+  padding:18px 20px; border-radius:var(--raio);
+  background:var(--vinho); color:rgba(255,252,249,.86);
+  border:1px solid rgba(220,192,138,.36);
+  box-shadow:0 16px 38px -16px rgba(27,12,20,.7);
+  animation:cookies-entra .6s var(--ease) both;
+}
+.cookies[hidden]{ display:none; }
+.cookies__texto{ font-size:.88rem; line-height:1.55; }
+.cookies__acoes{ display:flex; gap:10px; margin-top:14px; }
+.cookies__btn{
+  flex:1; padding:11px 16px; border-radius:999px; cursor:pointer;
+  font:inherit; font-size:.85rem; letter-spacing:.03em;
+  background:transparent; color:var(--perola);
+  border:1px solid rgba(255,252,249,.38);
+  transition:background .3s ease,border-color .3s ease;
+}
+.cookies__btn:hover{ border-color:var(--perola); }
+.cookies__btn--sim{ background:var(--perola); color:var(--vinho); border-color:var(--perola); }
+.cookies__btn--sim:hover{ background:#fff; }
+@keyframes cookies-entra{ from{ opacity:0; transform:translateY(14px); } }
+
+@media (max-width:560px){
+  .cookies{ left:14px; right:14px; width:auto; bottom:calc(14px + 52px + 12px); }
+}
+
+.rodape__cookies{
+  font:inherit; color:var(--rosa-claro); background:none; border:0; padding:0; cursor:pointer;
+  border-bottom:1px solid transparent;
+}
+.rodape__cookies:hover{ border-color:currentColor; }
+
 /* ==========================================================================
    14. SEDA — o canvas WebGL das faixas escuras
    O canvas roda em opacidade cheia; quem protege a leitura é o véu do ::after.

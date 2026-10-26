@@ -371,6 +371,31 @@ do `data-zap`. Como agora há `gtag` na página, o gancho do `main.js` também
 passa a disparar `contato_whatsapp`; esse evento não é conversão e não conta em
 dobro.
 
+### Cookies e consentimento (LGPD)
+
+Desde 26/10/2026 o Google **começa sem gravar cookie** (Consent Mode do
+Google, tudo `denied`). Quem decide é o aviso no canto da tela:
+
+- **O bloco "Consentimento" no `<head>`** das duas páginas vem *antes* do bloco
+  da agência e lê a resposta guardada (`localStorage`, chave `cookies`, valor
+  `sim` ou `nao`). É por ele que o código da agência não precisou ser editado.
+- **O aviso** (`#cookies`, no fim do `index.html`) só aparece para quem ainda
+  não respondeu. Recusar e Aceitar têm o mesmo tamanho — a ANPD pede que
+  recusar seja tão fácil quanto aceitar. O link **"Cookies"** no rodapé reabre
+  o aviso; recusar depois de ter aceitado apaga os cookies `_gcl`/`_ga`.
+- **O 404 não mostra aviso**: lá o Google fica sem cookie até a pessoa
+  responder na página principal.
+
+Sem consentimento a conversão do WhatsApp **continua sendo enviada**, só que
+sem cookie — o Google usa isso para estimar as conversões de quem recusou.
+Testado: sem resposta, nenhum cookie; Aceitar grava `_gcl_au`; Recusar apaga.
+
+> [!warning] CSS e JS ficam um ano em cache
+> O `.htaccess` manda o navegador guardar `css/` e `js/` por um ano, e o nome
+> do arquivo não muda. Por isso o `index.html` chama `style.css?v=2` e
+> `main.js?v=2`. **Mudou o CSS ou o `main.js`, sobe o número** — senão quem já
+> visitou o site vê o HTML novo com o estilo velho.
+
 O gancho continua valendo para qualquer outra ferramenta: todo link de WhatsApp
 tem o atributo `data-zap`, e o `main.js` dispara um evento no clique **se**
 houver Plausible, GA4 ou Umami na página.
@@ -449,7 +474,7 @@ ativo, então pode haver conteúdo que não aparecia na home).
 
 | Saiu | Por quê |
 |---|---|
-| Banner de cookies (CookieYes) | O site novo não tinha nenhum rastreador. **Desde 26/10/2026 tem o Google Ads, que grava cookie de publicidade** — o banner volta a ser pendência (LGPD), ainda não resolvida. |
+| Banner de cookies (CookieYes) | O site novo não tinha nenhum rastreador. Com o Google Ads (26/10/2026) voltou um aviso, mas próprio: 40 linhas de CSS e JS em vez de um plugin — ver "Cookies e consentimento". |
 | Plugin Joinchat | Substituído pelo botão flutuante próprio, que é 20 linhas de CSS em vez de um plugin. |
 | Aba "Coleta de preventivo" com texto do pré-natal | Era duplicação. Reescrita — ver "Antes de publicar". |
 | Menu repetido 4× no HTML | Era o Elementor gerando desktop + mobile + variações. Agora é um `<nav>` só. |

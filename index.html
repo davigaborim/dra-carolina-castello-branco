@@ -2,6 +2,20 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
+<!-- Consentimento (LGPD). Precisa vir ANTES do bloco do Google Ads: o Google
+     começa sem gravar cookie e só passa a gravar depois do "Aceitar" do aviso
+     (js/main.js). A resposta fica em localStorage, chave "cookies". -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  (function () {
+    var resposta = null;
+    try { resposta = localStorage.getItem('cookies'); } catch (_) {}
+    var v = resposta === 'sim' ? 'granted' : 'denied';
+    gtag('consent', 'default', { ad_storage: v, ad_user_data: v, ad_personalization: v, analytics_storage: v });
+    gtag('set', 'ads_data_redaction', v === 'denied');
+  })();
+</script>
 <!-- Google Ads - NEXUS Health - Dra. Carolina Castello Branco -->
 <!-- Colar dentro do <head> de TODAS as páginas do site -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17611720444"></script>
@@ -49,7 +63,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=2">
 </head>
 <body>
 
@@ -761,10 +775,25 @@
     </p>
     <p class="rodape__fecho">
       © <span id="ano">2026</span> Dra. Carolina Castello Branco ·
-      Site por <a href="https://instagram.com/velocg" target="_blank" rel="noopener">Velo</a>
+      Site por <a href="https://instagram.com/velocg" target="_blank" rel="noopener">Velo</a> ·
+      <button type="button" class="rodape__cookies" data-cookies-abrir>Cookies</button>
     </p>
   </div>
 </footer>
+
+<!-- ======================= AVISO DE COOKIES ======================= -->
+<!-- Começa escondido: o main.js só mostra se a pessoa ainda não respondeu.
+     Sem JS, o aviso não aparece e o Google segue sem cookie, que é o certo. -->
+<div class="cookies" id="cookies" role="region" aria-label="Aviso de cookies" hidden>
+  <p class="cookies__texto">
+    Usamos cookies do Google para saber quais anúncios trazem pacientes até aqui.
+    Se recusar, o site funciona do mesmo jeito.
+  </p>
+  <div class="cookies__acoes">
+    <button type="button" class="cookies__btn" data-cookies="nao">Recusar</button>
+    <button type="button" class="cookies__btn cookies__btn--sim" data-cookies="sim">Aceitar</button>
+  </div>
+</div>
 
 <!-- ======================= WHATSAPP FLUTUANTE ======================= -->
 <a class="zap-flut" href="https://wa.me/5567984673592?text=Ol%C3%A1%2C%20Dra.%20Carolina!%20Vim%20pelo%20site%20e%20gostaria%20de%20agendar%20uma%20consulta." target="_blank" rel="noopener" aria-label="Falar no WhatsApp com o consultório da Dra. Carolina" data-zap>
@@ -819,7 +848,7 @@
 }
 </script>
 
-<script src="js/main.js" defer></script>
+<script src="js/main.js?v=2" defer></script>
 <script src="js/flor.js" defer></script>
 <script src="js/seda.js" defer></script>
 </body>

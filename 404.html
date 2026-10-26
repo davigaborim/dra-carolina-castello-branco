@@ -2,6 +2,20 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
+<!-- Consentimento (LGPD). Precisa vir ANTES do bloco do Google Ads: o Google
+     começa sem gravar cookie e só passa a gravar depois do "Aceitar" do aviso
+     (js/main.js). A resposta fica em localStorage, chave "cookies". -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  (function () {
+    var resposta = null;
+    try { resposta = localStorage.getItem('cookies'); } catch (_) {}
+    var v = resposta === 'sim' ? 'granted' : 'denied';
+    gtag('consent', 'default', { ad_storage: v, ad_user_data: v, ad_personalization: v, analytics_storage: v });
+    gtag('set', 'ads_data_redaction', v === 'denied');
+  })();
+</script>
 <!-- Google Ads - NEXUS Health - Dra. Carolina Castello Branco -->
 <!-- Colar dentro do <head> de TODAS as páginas do site -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17611720444"></script>
