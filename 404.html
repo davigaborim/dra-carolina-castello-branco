@@ -2,6 +2,29 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
+<!-- Google Ads - NEXUS Health - Dra. Carolina Castello Branco -->
+<!-- Colar dentro do <head> de TODAS as páginas do site -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-17611720444"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-17611720444');
+
+  // Conta como conversão todo clique em link de WhatsApp (wa.me ou api.whatsapp.com)
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    if (/wa\.me|api\.whatsapp\.com|web\.whatsapp\.com/i.test(href)) {
+      gtag('event', 'conversion', {
+        'send_to': 'AW-17611720444/fBUWCNr13KEdEPyN9s1B',
+        'transport_type': 'beacon'
+      });
+    }
+  }, true);
+</script>
+<!-- Fim Google Ads -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Página não encontrada — Dra. Carolina Castello Branco</title>
 <meta name="robots" content="noindex">

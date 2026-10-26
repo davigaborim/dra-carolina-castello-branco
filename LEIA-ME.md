@@ -359,10 +359,21 @@ em corpo grande são o que este tem de próprio.
 
 ## Medição
 
-**Não há nenhuma ferramenta de medição instalada** — essa é uma decisão da Dra.
-Carolina, não nossa. Mas o gancho já está pronto: todo link de WhatsApp tem o
-atributo `data-zap`, e o `main.js` dispara um evento no clique **se** houver
-Plausible, GA4 ou Umami na página. Sem ferramenta, não faz nada.
+**Google Ads instalado em 26/10/2026**, a pedido da agência que a Dra.
+contratou para os anúncios (NEXUS Health, conta `AW-17611720444`). O bloco
+está no `<head>` do `index.html` e do `404.html`, entre
+`<!-- Google Ads - NEXUS Health ... -->` e `<!-- Fim Google Ads -->`. **O código é
+deles: não editar por dentro.** Se pedirem troca, substituir o bloco inteiro.
+
+Ele mesmo conta como conversão (`AW-17611720444/fBUWCNr13KEdEPyN9s1B`) todo
+clique em link `wa.me`, `api.whatsapp.com` ou `web.whatsapp.com` — não depende
+do `data-zap`. Como agora há `gtag` na página, o gancho do `main.js` também
+passa a disparar `contato_whatsapp`; esse evento não é conversão e não conta em
+dobro.
+
+O gancho continua valendo para qualquer outra ferramenta: todo link de WhatsApp
+tem o atributo `data-zap`, e o `main.js` dispara um evento no clique **se**
+houver Plausible, GA4 ou Umami na página.
 
 Para ligar, basta colar o script da ferramenta no `<head>`. O evento sai
 sozinho, com o nome `WhatsApp` (Plausible), `contato_whatsapp` (GA4) ou
@@ -438,7 +449,7 @@ ativo, então pode haver conteúdo que não aparecia na home).
 
 | Saiu | Por quê |
 |---|---|
-| Banner de cookies (CookieYes) | O site novo não tem nenhum rastreador. Sem cookie, não há o que consentir. Se instalar medição, reavalie — Plausible e Umami não usam cookie; GA4 usa. |
+| Banner de cookies (CookieYes) | O site novo não tinha nenhum rastreador. **Desde 26/10/2026 tem o Google Ads, que grava cookie de publicidade** — o banner volta a ser pendência (LGPD), ainda não resolvida. |
 | Plugin Joinchat | Substituído pelo botão flutuante próprio, que é 20 linhas de CSS em vez de um plugin. |
 | Aba "Coleta de preventivo" com texto do pré-natal | Era duplicação. Reescrita — ver "Antes de publicar". |
 | Menu repetido 4× no HTML | Era o Elementor gerando desktop + mobile + variações. Agora é um `<nav>` só. |
