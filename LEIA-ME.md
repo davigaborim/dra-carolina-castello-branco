@@ -388,6 +388,12 @@ Google, tudo `denied`). Quem decide é o aviso no canto da tela:
 
 Sem consentimento a conversão do WhatsApp **continua sendo enviada**, só que
 sem cookie — o Google usa isso para estimar as conversões de quem recusou.
+
+Em 27/10/2026 a própria agência pediu uma linha a mais no bloco deles, logo
+depois do `gtag('config', ...)`: `gtag('set', 'url_passthrough', true);`. Ela
+não grava cookie — leva o identificador do clique do anúncio (`gclid`) na URL
+de uma página para outra, para a conversão de quem não aceitou ainda ser
+ligada ao anúncio. Foi a única edição dentro do bloco, e a pedido deles.
 Testado: sem resposta, nenhum cookie; Aceitar grava `_gcl_au`; Recusar apaga.
 
 > [!warning] CSS e JS ficam um ano em cache
